@@ -9,11 +9,12 @@ export default function Dashboard() {
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard title="Total Barang" value={120} />
-        <StatsCard title="Barang Individu" value={90} />
-        <StatsCard title="Barang Bundle" value={30} />
-        <StatsCard title="Total Transaksi" value={45} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <StatsCard title="Total Barang" value={120} />
+<StatsCard title="Total Modal" value={(90000000).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })} />
+<StatsCard title="Total Value" value={(300000000).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })} />
+{/* <StatsCard title="Total Transaksi" value={45} /> */}
+
       </div>
 
       {/* Charts */}
