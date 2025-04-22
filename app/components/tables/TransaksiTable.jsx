@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import {
   Table, TableBody, TableCell, TableContainer,
@@ -14,7 +16,8 @@ const dataTransaksi = [
     hargasatuan: 500000,
     total: 1000000,
     jenis: 'Pembelian',
-    gudang: 'Gudang A'
+    gudang: 'Gudang A',
+    operator: 'Andi'
   },
   {
     id: 2,
@@ -25,7 +28,8 @@ const dataTransaksi = [
     hargasatuan: 133735140,
     total: 133735140,
     jenis: 'Penjualan',
-    gudang: 'Gudang A'
+    gudang: 'Gudang A',
+    operator: 'Bagus'
   },
   {
     id: 3,
@@ -36,8 +40,8 @@ const dataTransaksi = [
     hargasatuan: 800000,
     total: 1600000,
     jenis: 'Pembelian',
-    gudang: 'Gudang D'
-
+    gudang: 'Gudang D',  
+    operator: 'Agus'
   },
   {
     id: 4,
@@ -48,7 +52,8 @@ const dataTransaksi = [
     hargasatuan: 750000,
     total: 1500000,
     jenis: 'Penjualan',
-    gudang: 'Gudang E'
+    gudang: 'Gudang E',
+    operator: 'Agus'
   },
   {
     id: 5,
@@ -59,7 +64,8 @@ const dataTransaksi = [
     hargasatuan: 2000000,
     total: 4000000,
     jenis: 'Pembelian',
-    gudang: 'RS Hermina'
+    gudang: 'RS Hermina',
+    operator: 'Andi'
   },
   {
     id: 6,
@@ -70,7 +76,8 @@ const dataTransaksi = [
     hargasatuan: 900000,
     total: 900000,
     jenis: 'Pembelian',
-    gudang: 'Gudang B'
+    gudang: 'Gudang B',
+    operator: 'Andi'
   },
   {
     id: 7,
@@ -81,7 +88,8 @@ const dataTransaksi = [
     hargasatuan: 11000000,
     total: 11000000,
     jenis: 'Penjualan',
-    gudang: 'Klinik HK Medical Center'
+    gudang: 'Klinik HK Medical Center',
+    operator: 'Andi'
   },
 ];
 
@@ -97,7 +105,8 @@ export default function TabelTransaksi() {
             <TableCell><b>Jumlah</b></TableCell>
             <TableCell><b>Harga Satuan</b></TableCell>
             <TableCell><b>Total</b></TableCell>
-            <TableCell><b>Gudang</b></TableCell>
+            <TableCell><b>Gudang</b></TableCell>            
+            <TableCell><b>Operator</b></TableCell>
             <TableCell><b>Status</b></TableCell>
           </TableRow>
         </TableHead>
@@ -111,6 +120,7 @@ export default function TabelTransaksi() {
               <TableCell>Rp{row.hargasatuan.toLocaleString()}</TableCell>
               <TableCell>Rp{row.total.toLocaleString()}</TableCell>
               <TableCell>{row.gudang}</TableCell>
+              <TableCell>{row.operator}</TableCell>
               <TableCell>
                 <Chip
                   label={row.jenis}

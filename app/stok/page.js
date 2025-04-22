@@ -1,12 +1,10 @@
-import StatsCard from "@/components/cards/StatsCard";
-import DummyChart from "@/components/charts/DummyChart";
-import BarangBaruTable from "@/components/tables/BarangBaruTable";
-import TransaksiTable from "@/components/tables/TransaksiTable";
+import StatsCard from "@/app/components/cards/StatsCard";
+import TransaksiTable from "@/app/components/tables/TransaksiTable";
 
 export default function Dashboard() {
   return (
     <main className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1 className="text-2xl font-bold">Stok</h1>
 
       {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
