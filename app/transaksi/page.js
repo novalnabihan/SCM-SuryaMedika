@@ -106,7 +106,7 @@ export default function InvoiceTable() {
         <h1 className="text-2xl font-bold">Nama Tabel</h1>
         <div className="flex gap-4">
           <Input placeholder="Cari transaksi..." className="w-64 p-3 text-sm" />
-          <Button className="bg-cyan-950">Buat Invoice Baru</Button>
+          <Button className="bg-cyan-950 hover:bg-cyan-900">Buat Invoice Baru</Button>
         </div>
       </div>
 
