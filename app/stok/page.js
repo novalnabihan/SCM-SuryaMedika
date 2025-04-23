@@ -41,7 +41,7 @@ export default function StokProduk() {
             <option value="gudang-a">Gudang A</option>
             <option value="gudang-b">Gudang B</option>
           </select>
-          <Button className="bg-black text-white py-2 px-6 text-sm">Tambah Produk Baru</Button>
+          <Button className="bg-cyan-950 hover:bg-cyan-900 text-white py-2 px-6 text-sm">Tambah Produk Baru</Button>
         </div>
       </div>
 
