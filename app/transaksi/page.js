@@ -10,6 +10,8 @@ import {
 import { Input } from "@/app/components/ui/input";
 import { Card } from "@/app/components/ui/card";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
+import { Plus } from "lucide-react";
+
 import Link from "next/link";
 
 const dataTransaksi = [
@@ -101,45 +103,49 @@ const dataTransaksi = [
 
 export default function InvoiceTable() {
   return (
-    <Card className="p-6 bg-slate-100 min-h-screen">
+    <div className="p-6 bg-slate-100 min-h-screen">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Nama Tabel</h1>
+        <h1 className="text-2xl font-bold">Tabel Transaksi</h1>
         <div className="flex gap-4">
-          <Input placeholder="Cari transaksi..." className="w-64 p-3 text-sm" />
-          <Button className="bg-cyan-950 hover:bg-cyan-900">Buat Invoice Baru</Button>
+        <Input placeholder="Cari produk..." className="flex items-center gap-2 py-6 px-5 text-gray-600 border rounded-md" />
+          <Button className="flex items-center gap-2 bg-cyan-950 hover:bg-cyan-900 text-white px-5 py-6 rounded-lg min-w-[200px] text-base">
+              <Plus className="w-5 h-5" />
+              Buat Invoice Baru
+            </Button>
         </div>
       </div>
-
+  
+      {/* Tabel dan Konten */}
       <Card className="p-4 shadow-md rounded-xl">
         <ScrollArea>
           <Table className="table-auto">
             <TableHeader>
               <TableRow className="bg-slate-200">
-                <TableHead className="px-6 py-4 text-sm font-semibold text-gray-600">
+                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
                   Tanggal
                 </TableHead>
-                <TableHead className="px-6 py-4 text-sm font-semibold text-gray-600">
+                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
                   Kode Barang
                 </TableHead>
-                <TableHead className="px-6 py-4 text-sm font-semibold text-gray-600">
+                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
                   Nama Barang
                 </TableHead>
-                <TableHead className="px-6 py-4 text-sm font-semibold text-gray-600">
+                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
                   Jumlah
                 </TableHead>
-                <TableHead className="px-6 py-4 text-sm font-semibold text-gray-600">
+                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
                   Harga Satuan
                 </TableHead>
-                <TableHead className="px-6 py-4 text-sm font-semibold text-gray-600">
+                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
                   Total
                 </TableHead>
-                <TableHead className="px-6 py-4 text-sm font-semibold text-gray-600">
+                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
                   Gudang
                 </TableHead>
-                <TableHead className="px-6 py-4 text-sm font-semibold text-gray-600">
+                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
                   Operator
                 </TableHead>
-                <TableHead className="px-6 py-4 text-sm font-semibold text-gray-600">
+                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
                   Status
                 </TableHead>
               </TableRow>
@@ -147,25 +153,25 @@ export default function InvoiceTable() {
             <TableBody>
               {dataTransaksi.map((transaksi) => (
                 <TableRow key={transaksi.id} className="hover:bg-gray-50">
-                  <TableCell className="px-6 py-4 text-sm">
+                  <TableCell className="px-6 py-4 text-base">
                     {transaksi.tanggal}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm">
+                  <TableCell className="px-6 py-4 text-base">
                     {transaksi.kode}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm">
+                  <TableCell className="px-6 py-4 text-base">
                     {transaksi.barang}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm">
+                  <TableCell className="px-6 py-4 text-base">
                     {transaksi.jumlah}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm">
+                  <TableCell className="px-6 py-4 text-base">
                     Rp {transaksi.hargasatuan.toLocaleString()}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm">
+                  <TableCell className="px-6 py-4 text-base">
                     Rp {transaksi.total.toLocaleString()}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm">
+                  <TableCell className="px-6 py-4 text-base">
                     <Link
                       href={`/gudang/${transaksi.gudang
                         .toLowerCase()
@@ -176,12 +182,12 @@ export default function InvoiceTable() {
                       </span>
                     </Link>
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm">
+                  <TableCell className="px-6 py-4 text-base">
                     {transaksi.operator}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-sm">
+                  <TableCell className="px-6 py-4 text-base">
                     <span
-                      className={`text-sm px-2 py-1 rounded-full font-medium ${
+                      className={`text-base px-2 py-1 rounded-full font-medium ${
                         transaksi.jenis === "Pembelian"
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
@@ -196,6 +202,6 @@ export default function InvoiceTable() {
           </Table>
         </ScrollArea>
       </Card>
-    </Card>
-  );
+    </div>
+  );  
 }
