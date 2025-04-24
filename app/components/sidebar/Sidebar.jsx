@@ -5,9 +5,9 @@ import { LayoutDashboard, Package, Warehouse, Boxes, UserRound, LogOut } from 'l
 
 const Sidebar = () => {
   return (
-    <aside className="w-64 bg-cyan-950 shadow-md p-4 h-screen text-sm">
-      <h2 className="text-xl font-bold text-white mb-6">PT. Hartindo Surya Medika</h2>
-      <nav className="space-y-2">
+    <aside className="fixed top-0 left-0 w-64 h-screen bg-cyan-950 shadow-lg px-6 py-8 text-base z-50 overflow-y-auto">
+      <h2 className="text-2xl font-bold text-white mb-8">PT. Hartindo Surya Medika</h2>
+      <nav className="space-y-4">
         <SidebarLink href="/dashboard" icon={LayoutDashboard}>Dashboard</SidebarLink>
         <SidebarLink href="/karyawan" icon={UserRound}>Karyawan</SidebarLink>
         <SidebarLink href="/gudang" icon={Warehouse}>Gudang</SidebarLink>

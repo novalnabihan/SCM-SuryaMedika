@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
       <body className="antialiased">
         <div className="flex min-h-screen">
           <Sidebar /> 
-          <main className="flex-1 bg-white p-6">
+          <main className=" ml-64 flex-1 bg-slate-100 p-6">
             {children} 
           </main>
         </div>
