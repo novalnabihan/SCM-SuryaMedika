@@ -9,21 +9,21 @@ export default function GudangListPage() {
   const [gudangList, setGudangList] = useState([
     {
       id: 1,
-      nama: 'Gudang Jakarta',
+      nama: 'Gudang A',
       alamat: 'Jl. Mangga Dua No. 10, Jakarta',
-      jumlahItem: 120,
+      jumlahItem: 2,
     },
     {
       id: 2,
-      nama: 'Gudang Surabaya',
+      nama: 'Gudang B',
       alamat: 'Jl. Ahmad Yani No. 55, Surabaya',
-      jumlahItem: 85,
+      jumlahItem: 2,
     },
     {
       id: 3,
-      nama: 'Gudang Bandung',
+      nama: 'Gudang C',
       alamat: 'Jl. Pasteur No. 99, Bandung',
-      jumlahItem: 150,
+      jumlahItem: 3,
     },
   ]);
 
@@ -43,7 +43,6 @@ export default function GudangListPage() {
   };
 
   return (
-    <Card className="p-6 bg-slate-100 min-h-screen">
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-semibold text-black">Daftar Gudang</h1>
@@ -68,8 +67,8 @@ export default function GudangListPage() {
                     <Warehouse className="text-black group-hover:scale-110 transition-transform" />
                     <h3 className="text-xl font-semibold text-gray-900">{gudang.nama}</h3>
                   </div>
-                  <p className="text-gray-600 text-sm mb-2">{gudang.alamat}</p>
-                  <p className="text-black text-sm mt-2">
+                  <p className="text-gray-600 text-base mb-2">{gudang.alamat}</p>
+                  <p className="text-black text-base mt-2">
                     Stok barang: <span className="font-semibold">{gudang.jumlahItem}</span>
                   </p>
                 </div>
@@ -78,7 +77,7 @@ export default function GudangListPage() {
               <div className="mt-auto flex justify-end">
                 <button
                   onClick={() => handleDelete(gudang.id)}
-                  className="flex items-center gap-2 text-sm text-red-500 border border-red-500 hover:bg-red-100 px-2 py-2 rounded-lg"
+                  className="flex items-center gap-2 text-base text-red-500 border border-red-500 hover:bg-red-100 px-2 py-2 rounded-lg"
                 >
                   <Trash2 size={16} />
                   Hapus Gudang
@@ -88,6 +87,5 @@ export default function GudangListPage() {
           ))}
         </div>
       </div>
-    </Card>
   );
 }
