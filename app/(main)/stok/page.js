@@ -1,3 +1,5 @@
+"use client";
+import { useState } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import {
   Dialog,
@@ -13,8 +15,10 @@ import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger } from "@
 import { Plus, ChevronDown } from "lucide-react";
 import ProductDetailModal from "@/app/components/productdetailmodal";
 import { SelectGroup } from "@radix-ui/react-select";
+import CustomModal from '@/app/components/modal';
 
 export default function StokProduk() {
+  const [openDialog, setOpenDialog] = useState(false);
   const dummyProducts = [
     {
       id: 1,
@@ -54,11 +58,49 @@ export default function StokProduk() {
           <SelectItem value="gudang-b">Gudang B</SelectItem>
         </SelectContent>
       </Select>
+      <CustomModal 
+  open={openDialog} 
+  setOpen={setOpenDialog} 
+  title={"Tambah Stok Baru"} 
+  icon={<Plus />} 
+  textButton={'Tambah Stok'}>
+  <form className='space-y-6'>
+  <div>
+      <Label htmlFor="nama">Nama Produk</Label>
+      <Input
+        id="nama_produk"
+        placeholder="Masukkan nama produk baru"
+        className="mt-2"
+      />
+    </div>
 
-          <Button className="flex items-center gap-2 bg-cyan-950 hover:bg-cyan-900 text-white px-5 py-6 rounded-lg min-w-[200px] text-base">
-            <Plus className="w-5 h-5" />
-            Tambah Produk Baru
-          </Button>
+    <div>
+      <Label htmlFor="total">Stok Total</Label>
+      <Input
+        id="total_stok"
+        type="number"
+        placeholder="Masukkan total stok produk"
+        className="mt-2"
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="harga">Harga Jual Produk</Label>
+      <Input
+        id="hargajual_stok"
+        type="number"
+        placeholder="Masukkan harga jual produk"
+        className="mt-2"
+      />
+    </div>
+  </form>
+  <div>
+    <Button className="w-full bg-cyan-950 hover:bg-cyan-900 mt-4">
+      Simpan
+    </Button>
+  </div>
+</CustomModal>
+
         </div>
       </div>
 
