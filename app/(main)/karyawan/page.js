@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -20,7 +20,8 @@ import {
   SelectContent,
   SelectItem,
   SelectLabel,
-} from "@/app/components/ui/select"; // Pastikan import benar
+  SelectGroup,
+} from "@/app/components/ui/select";
 import {
   Table,
   TableBody,
@@ -29,27 +30,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/components/ui/table";
-import { SelectGroup } from "@radix-ui/react-select";
 
 export default function KaryawanPage() {
   const [openDialog, setOpenDialog] = useState(false);
+  const [karyawanList, setKaryawanList] = useState([]);
 
-  const dummyKaryawan = [
-    {
-      id: 1,
-      nama: "Andi Wijaya",
-      email: "andi@example.com",
-      role: "karyawan",
-      tanggal: "2024-04-01",
-    },
-    {
-      id: 2,
-      nama: "Dewi Lestari",
-      email: "dewi@example.com",
-      role: "manager",
-      tanggal: "2024-03-20",
-    },
-  ];
+  useEffect(() => {
+    const fetchKaryawan = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/api/users");
+        const data = await res.json();
+        console.log("DATA USER:", data); // cek di console
+        setKaryawanList(data);
+      } catch (error) {
+        console.error("Gagal ambil data user:", error);
+      }
+    };
+  
+    fetchKaryawan();
+  }, []);
+  
+
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
@@ -101,18 +102,18 @@ export default function KaryawanPage() {
                     </SelectGroup>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="karyawan">Karyawan</SelectItem>
+                    <SelectItem value="staff">Staff</SelectItem>
                     <SelectItem value="manager">Manager</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               {/* Password */}
               <div>
-                <Label htmlFor="password">Password Awal</Label>
+                <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Opsional - Default oleh sistem"
+                  placeholder="Password"
                   className="mt-2"
                 />
               </div>
@@ -129,7 +130,7 @@ export default function KaryawanPage() {
       <div className="overflow-x-auto">
         <Card className="p-4 shadow-md rounded-xl">
           <ScrollArea>
-            <Table className="min-w-full bg-white  rounded-lg shadow-md">
+            <Table className="min-w-full bg-white rounded-lg shadow-md">
               <TableHeader>
                 <TableRow className="bg-slate-200">
                   <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
@@ -150,12 +151,14 @@ export default function KaryawanPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {dummyKaryawan.map((karyawan) => (
+                {karyawanList.map((karyawan) => (
                   <TableRow
                     key={karyawan.id}
                     className="hover:bg-gray-50 text-base"
                   >
-                    <TableCell className="px-6 py-4">{karyawan.nama}</TableCell>
+                    <TableCell className="px-6 py-4">
+                      {karyawan.username}
+                    </TableCell>
                     <TableCell className="px-6 py-4">
                       {karyawan.email}
                     </TableCell>
@@ -163,21 +166,13 @@ export default function KaryawanPage() {
                       {karyawan.role}
                     </TableCell>
                     <TableCell className="px-6 py-4">
-                      {karyawan.tanggal}
+                      {new Date(karyawan.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="px-6 py-4 flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="hover:text-blue-600"
-                      >
+                      <Button variant="outline" size="icon">
                         <Pencil className="w-4 h-4" />
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="hover:text-red-600"
-                      >
+                      <Button variant="destructive" size="icon">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </TableCell>
