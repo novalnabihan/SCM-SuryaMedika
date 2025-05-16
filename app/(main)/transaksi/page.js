@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/app/components/ui/button";
+
 import {
   Table,
   TableBody,
@@ -11,11 +11,8 @@ import {
 import { Input } from "@/app/components/ui/input";
 import { Card } from "@/app/components/ui/card";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { Plus } from "lucide-react";
-import CustomModal from '@/app/components/modal';
-import { Label } from '@/app/components/ui/label';
 import { useState } from "react";
-
+import ModalAdd from "../gudang/_components/modal-add";
 
 
 import Link from "next/link";
@@ -115,72 +112,7 @@ export default function InvoiceTable() {
         <h1 className="text-2xl font-bold">Tabel Transaksi</h1>
         <div className="flex gap-4">
         <Input placeholder="Cari produk..." className="flex items-center gap-2 py-6 px-5 text-gray-600 border rounded-md" />
-<CustomModal
-  open={openDialog}
-  setOpen={setOpenDialog}
-  title={"Buat Invoice Baru"}
-  icon={<Plus />}
-  textButton={"Buat Invoice"}
->
-  <form className="space-y-6">
-    <div>
-      <Label htmlFor="tanggal">Tanggal</Label>
-      <Input id="tanggal" type="date" className="mt-2" />
-    </div>
-
-    <div>
-      <Label htmlFor="kode_barang">Kode Barang</Label>
-      <Input id="kode_barang" placeholder="Masukkan kode barang" className="mt-2" />
-    </div>
-
-    <div>
-      <Label htmlFor="nama_barang">Nama Barang</Label>
-      <Input id="nama_barang" placeholder="Masukkan nama barang" className="mt-2" />
-    </div>
-
-    <div>
-      <Label htmlFor="jumlah">Jumlah</Label>
-      <Input id="jumlah" type="number" placeholder="Masukkan jumlah" className="mt-2" />
-    </div>
-
-    <div>
-      <Label htmlFor="harga_satuan">Harga Satuan</Label>
-      <Input id="harga_satuan" type="number" placeholder="Masukkan harga satuan" className="mt-2" />
-    </div>
-
-    <div>
-      <Label htmlFor="total">Total</Label>
-      <Input id="total" type="number" placeholder="Total akan dihitung otomatis" className="mt-2" disabled />
-    </div>
-
-    <div>
-      <Label htmlFor="gudang">Gudang</Label>
-      <Input id="gudang" placeholder="Masukkan nama gudang" className="mt-2" />
-    </div>
-
-    <div>
-      <Label htmlFor="operator">Operator</Label>
-      <Input id="operator" placeholder="Masukkan nama operator" className="mt-2" />
-    </div>
-
-    <div>
-      <Label htmlFor="jenis">Status</Label>
-      <select
-        id="jenis"
-        className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2"
-      >
-        <option value="">Pilih jenis transaksi</option>
-        <option value="Pembelian">Pembelian</option>
-        <option value="Penjualan">Penjualan</option>
-      </select>
-    </div>
-
-    <Button className="w-full bg-cyan-950 hover:bg-cyan-900 mt-4">
-      Simpan
-    </Button>
-  </form>
-</CustomModal>
-
+      <ModalAdd />
 
         </div>
       </div>
