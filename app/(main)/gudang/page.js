@@ -3,13 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Warehouse, Plus, Trash2 } from 'lucide-react';
-import CustomModal from '@/app/components/modal';
-import { Label } from '@/app/components/ui/label';
-import { Input } from "@/app/components/ui/input";
-import { Button } from "@/app/components/ui/button";
+import ModalAdd from './_components/modal-add';
 
 export default function GudangListPage() {
-  const [openDialog, setOpenDialog] = useState(false);
+ 
   const [gudangList, setGudangList] = useState([
     {
       id: 1,
@@ -50,39 +47,7 @@ export default function GudangListPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-black">Daftar Gudang</h1>
-        <CustomModal 
-        open={openDialog} 
-        setOpen={setOpenDialog} 
-        title={"Tambah Gudang Baru"} 
-        icon={<Plus />} 
-        textButton={'Tambah Gudang'}>
-          <form className='space-y-6'>
-            <div>
-
-              <Label htmlFor="nama">Nama Gudang</Label>
-              <Input
-                id="nama_gudang"
-                placeholder="Masukkan nama gudang"
-                className="mt-2"
-              />
-            </div>
-            <div>
-
-              <Label htmlFor="email">Alamat Gudang</Label>
-              <Input
-                id="alamat_gudang"
-                placeholder="Masukkan alamat gudang"
-                className="mt-2"
-              />
-            </div>
-          </form>
-          <div>
-              {/* Button */}
-              <Button className="w-full bg-cyan-950 hover:bg-cyan-900 mt-4">
-                Simpan
-              </Button>
-            </div>
-        </CustomModal>
+        <ModalAdd />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
