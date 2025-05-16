@@ -30,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/components/ui/table";
+import ModalAdd from './_components/modal-add';
 
 export default function KaryawanPage() {
   const [openDialog, setOpenDialog] = useState(false);
@@ -60,28 +61,6 @@ export default function KaryawanPage() {
     fetchKaryawan();
   }, []);
 
-  const handleSimpan = async () => {
-    try {
-      const res = await fetch("http://localhost:3001/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newUser),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setKaryawanList([data, ...karyawanList]);
-        setNewUser({ username: "", email: "", role: "", password: "" });
-        setOpenDialog(false);
-      } else {
-        alert(data.message || "Gagal menambahkan user");
-      }
-    } catch (err) {
-      console.error("Error tambah user:", err);
-      alert("Server error");
-    }
-  };
 
   const handleHapus = async (id) => {
     const konfirmasi = confirm("Yakin ingin menghapus user ini?");
@@ -111,90 +90,7 @@ export default function KaryawanPage() {
         <h1 className="text-2xl font-semibold text-gray-800">
           Daftar Karyawan
         </h1>
-        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2 bg-cyan-950 hover:bg-cyan-900 text-white px-5 py-6 rounded-lg min-w-[200px] text-base">
-              <Plus className="w-5 h-5" />
-              Tambah Karyawan
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl p-6 bg-white rounded-xl shadow-lg">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-semibold">
-                Tambah Karyawan Baru
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-5">
-              {/* Nama */}
-              <div>
-                <Label htmlFor="nama">Nama</Label>
-                <Input
-                  id="nama"
-                  placeholder="Masukkan nama karyawan"
-                  className="mt-2"
-                  value={newUser.username}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, username: e.target.value })
-                  }
-                />
-              </div>
-              {/* Email */}
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Masukkan email"
-                  className="mt-2"
-                  value={newUser.email}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, email: e.target.value })
-                  }
-                />
-              </div>
-              {/* Role */}
-              <div>
-                <Label htmlFor="role">Role</Label>
-                <Select
-                  onValueChange={(value) =>
-                    setNewUser({ ...newUser, role: value })
-                  }
-                >
-                  <SelectTrigger className="w-full py-3 px-4 text-base text-gray-600 border rounded-md mt-2">
-                    <SelectGroup>
-                      <SelectLabel>Role Karyawan</SelectLabel>
-                    </SelectGroup>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="staff">Staff</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {/* Password */}
-              <div>
-                <Label htmlFor="password">Password Awal</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Wajib diisi"
-                  className="mt-2"
-                  value={newUser.password}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, password: e.target.value })
-                  }
-                />
-              </div>
-              {/* Button */}
-              <Button
-                className="w-full bg-cyan-950 hover:bg-cyan-900 mt-4"
-                onClick={handleSimpan}
-              >
-                Simpan
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <ModalAdd />
         <Dialog open={editDialog} onOpenChange={setEditDialog}>
           <DialogContent className="max-w-4xl p-6 bg-white rounded-xl shadow-lg">
             <DialogHeader>

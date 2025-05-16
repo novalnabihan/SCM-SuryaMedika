@@ -12,10 +12,9 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger } from "@/app/components/ui/select";
-import { Plus, ChevronDown } from "lucide-react";
 import ProductDetailModal from "@/app/components/productdetailmodal";
 import { SelectGroup } from "@radix-ui/react-select";
-import CustomModal from '@/app/components/modal';
+import ModalAdd from "./_components/modal-add";
 
 export default function StokProduk() {
   const [openDialog, setOpenDialog] = useState(false);
@@ -58,48 +57,7 @@ export default function StokProduk() {
           <SelectItem value="gudang-b">Gudang B</SelectItem>
         </SelectContent>
       </Select>
-      <CustomModal 
-  open={openDialog} 
-  setOpen={setOpenDialog} 
-  title={"Tambah Stok Baru"} 
-  icon={<Plus />} 
-  textButton={'Tambah Stok'}>
-  <form className='space-y-6'>
-  <div>
-      <Label htmlFor="nama">Nama Produk</Label>
-      <Input
-        id="nama_produk"
-        placeholder="Masukkan nama produk baru"
-        className="mt-2"
-      />
-    </div>
-
-    <div>
-      <Label htmlFor="total">Stok Total</Label>
-      <Input
-        id="total_stok"
-        type="number"
-        placeholder="Masukkan total stok produk"
-        className="mt-2"
-      />
-    </div>
-
-    <div>
-      <Label htmlFor="harga">Harga Jual Produk</Label>
-      <Input
-        id="hargajual_stok"
-        type="number"
-        placeholder="Masukkan harga jual produk"
-        className="mt-2"
-      />
-    </div>
-  </form>
-  <div>
-    <Button className="w-full bg-cyan-950 hover:bg-cyan-900 mt-4">
-      Simpan
-    </Button>
-  </div>
-</CustomModal>
+      <ModalAdd />
 
         </div>
       </div>
