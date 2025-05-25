@@ -4,7 +4,7 @@ import { Plus } from 'lucide-react';
 import CustomModal from '@/app/components/modal';
 import { FormAdd } from './form-add';
 
-const ModalAdd = () => {
+const ModalAdd = ({ refresh }) => {
      const [openDialog, setOpenDialog] = useState(false);
   return (
     <CustomModal 
@@ -13,7 +13,12 @@ const ModalAdd = () => {
         title={"Tambah Gudang Baru"} 
         icon={<Plus />} 
         textButton={'Tambah Gudang'}>
-        <FormAdd/>
+        <FormAdd
+          onSuccess={() => {
+            refresh?.();
+            setOpenDialog(false);
+          }}
+        />
     </CustomModal>
   )
 }
