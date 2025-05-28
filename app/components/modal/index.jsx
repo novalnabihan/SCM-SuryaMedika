@@ -18,7 +18,7 @@ const CustomModal = ({
                 {textButton}
             </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl p-6 bg-white rounded-xl shadow-lg">
+        <DialogContent className="max-w-4xl p-5 bg-white rounded-xl shadow-lg">
             <DialogHeader>
                 <DialogTitle className="text-xl font-semibold">
                     {title}
