@@ -9,15 +9,15 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className="antialiased">
+    // <html lang="en">
+      // <body className="antialiased">
         <div className="flex min-h-screen">
           <Sidebar /> 
           <main className=" ml-64 flex-1 bg-slate-100 p-6">
             {children} 
           </main>
         </div>
-      </body>
-    </html>
+      // </body>
+    // </html>
   );
 }
