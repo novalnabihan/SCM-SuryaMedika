@@ -12,7 +12,8 @@ const ModalAdd = ({ refresh }) => {
         setOpen={setOpenDialog} 
         title={"Tambah Gudang Baru"} 
         icon={<Plus />} 
-        textButton={'Tambah Gudang'}>
+        textButton={'Tambah Gudang'}
+        >
         <FormAdd
           onSuccess={() => {
             refresh?.();

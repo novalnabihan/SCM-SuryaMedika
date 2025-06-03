@@ -38,9 +38,9 @@ export const FormAdd = ({ onSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <Label>Nama Gudang</Label>
+    <form onSubmit={handleSubmit} className="space-y-4 bg-white-600">
+      <div >
+        <Label className="mb-3">Nama Gudang</Label>
         <Input
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -48,20 +48,19 @@ export const FormAdd = ({ onSuccess }) => {
         />
       </div>
       <div>
-        <Label>Alamat</Label>
+        <Label className="mb-3">Alamat</Label>
         <Input
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
           required
         />
       </div>
-      <div>
-        <Label>Tipe Gudang</Label>
+      <div className="mb-8">
+        <Label className="mb-4">Tipe Gudang</Label>
         <Select
           value={form.type}
           onValueChange={(value) => setForm({ ...form, type: value })}
-          required
-        >
+          required>
           <SelectTrigger>{form.type || 'Pilih tipe gudang'}</SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -72,7 +71,7 @@ export const FormAdd = ({ onSuccess }) => {
         </Select>
       </div>
 
-      <Button type="submit" className="w-full bg-cyan-950 hover:bg-cyan-900">
+      <Button type="submit" className="w-full bg-cyan-950 hover:bg-cyan-900 " >
         {loading ? 'Menyimpan...' : 'Simpan'}
       </Button>
     </form>
