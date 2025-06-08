@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Table,
@@ -7,203 +7,165 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/app/components/ui/table";
-import { Input } from "@/app/components/ui/input";
-import { Card } from "@/app/components/ui/card";
-import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { useState } from "react";
-import ModalAdd from "../gudang/_components/modal-add";
-
-
-import Link from "next/link";
-
-const dataTransaksi = [
-  {
-    id: 1,
-    tanggal: "2025-04-10",
-    kode: "QWE-21",
-    barang: "Bending Iron",
-    jumlah: 2,
-    hargasatuan: 500000,
-    total: 1000000,
-    jenis: "Pembelian",
-    gudang: "Gudang A",
-    operator: "Andi",
-  },
-  {
-    id: 2,
-    tanggal: "2025-04-09",
-    kode: "SBD-01",
-    barang: "Surgical Bone Drill Driller",
-    jumlah: 1,
-    hargasatuan: 133735140,
-    total: 133735140,
-    jenis: "Penjualan",
-    gudang: "Gudang A",
-    operator: "Bagus",
-  },
-  {
-    id: 3,
-    tanggal: "2025-04-10",
-    kode: "PVS -21",
-    barang: "PAVIS 400",
-    jumlah: 2,
-    hargasatuan: 800000,
-    total: 1600000,
-    jenis: "Pembelian",
-    gudang: "Gudang D",
-    operator: "Agus",
-  },
-  {
-    id: 4,
-    tanggal: "2025-04-10",
-    kode: "PVS-41",
-    barang: "PAVIS 401",
-    jumlah: 2,
-    hargasatuan: 750000,
-    total: 1500000,
-    jenis: "Penjualan",
-    gudang: "Gudang E",
-    operator: "Agus",
-  },
-  {
-    id: 5,
-    tanggal: "2025-04-10",
-    kode: "PVS-55",
-    barang: "PAVIS 555",
-    jumlah: 2,
-    hargasatuan: 2000000,
-    total: 4000000,
-    jenis: "Pembelian",
-    gudang: "RS Hermina",
-    operator: "Andi",
-  },
-  {
-    id: 6,
-    tanggal: "2025-04-10",
-    kode: "RSK-21",
-    barang: "Ruskin Liston Bone Cutting 18 CM",
-    jumlah: 1,
-    hargasatuan: 900000,
-    total: 900000,
-    jenis: "Pembelian",
-    gudang: "Gudang B",
-    operator: "Andi",
-  },
-  {
-    id: 7,
-    tanggal: "2025-04-10",
-    kode: "QWE-21",
-    barang: "Cast Cutter Saw Oscimed Ergo II",
-    jumlah: 1,
-    hargasatuan: 11000000,
-    total: 11000000,
-    jenis: "Penjualan",
-    gudang: "Klinik HK Medical Center",
-    operator: "Andi",
-  },
-];
+} from '@/app/components/ui/table';
+import { Input } from '@/app/components/ui/input';
+import { Card } from '@/app/components/ui/card';
+import { ScrollArea } from '@/app/components/ui/scroll-area';
+import { useEffect, useState } from 'react';
+import ModalAdd from './_components/modal-add';
+import Link from 'next/link';
+import { Checkbox } from '@/app/components/ui/checkbox';
+import { Button } from '@/app/components/ui/button';
 
 export default function InvoiceTable() {
-    const [openDialog, setOpenDialog] = useState(false);
+  const [dataTransaksi, setDataTransaksi] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedRowId, setExpandedRowId] = useState(null);
+
+  useEffect(() => {
+    const fetchTransaksi = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setDataTransaksi(data);
+        } else {
+          setDataTransaksi([]);
+        }
+      } catch (error) {
+        console.error('Gagal fetch transaksi:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransaksi();
+  }, []);
+
   return (
-    <div className="p-6 bg-slate-100 min-h-screen">
+    <div className="p-6 bg-slate-100 min-h-screen relative">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Tabel Transaksi</h1>
         <div className="flex gap-4">
-        <Input placeholder="Cari produk..." className="flex items-center gap-2 py-6 px-5 text-gray-600 border rounded-md" />
-      <ModalAdd />
-
+          <Input
+            placeholder="Cari produk..."
+            className="flex items-center gap-2 py-6 px-5 text-gray-600 border rounded-md"
+          />
+          <ModalAdd />
         </div>
       </div>
-  
-      {/* Tabel dan Konten */}
+
       <Card className="p-4 shadow-md rounded-xl">
         <ScrollArea>
           <Table className="table-auto">
             <TableHeader>
               <TableRow className="bg-slate-200">
-                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
-                  Tanggal
-                </TableHead>
-                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
-                  Kode Barang
-                </TableHead>
-                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
-                  Nama Barang
-                </TableHead>
-                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
-                  Jumlah
-                </TableHead>
-                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
-                  Harga Satuan
-                </TableHead>
-                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
-                  Total
-                </TableHead>
-                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
-                  Gudang
-                </TableHead>
-                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
-                  Operator
-                </TableHead>
-                <TableHead className="px-6 py-4 text-base font-semibold text-gray-600">
-                  Status
-                </TableHead>
+                <TableHead />
+                <TableHead />
+                <TableHead>Tanggal</TableHead>
+                <TableHead>Kode Barang</TableHead>
+                <TableHead>Nama Barang</TableHead>
+                <TableHead>Jumlah</TableHead>
+                <TableHead>Harga Satuan</TableHead>
+                <TableHead>Subtotal</TableHead>
+                <TableHead>Gudang</TableHead>
+                <TableHead>Operator</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Partner</TableHead>
+                <TableHead>Metode Pembayaran</TableHead>
+                <TableHead>Status Pembayaran</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dataTransaksi.map((transaksi) => (
-                <TableRow key={transaksi.id} className="hover:bg-gray-50">
-                  <TableCell className="px-6 py-4 text-base">
-                    {transaksi.tanggal}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-base">
-                    {transaksi.kode}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-base">
-                    {transaksi.barang}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-base">
-                    {transaksi.jumlah}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-base">
-                    Rp {transaksi.hargasatuan.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-base">
-                    Rp {transaksi.total.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-base">
-                    <Link
-                      href={`/gudang/${transaksi.gudang
-                        .toLowerCase()
-                        .replace(" ", "-")}`}
-                    >
-                      <span className="text-blue-600 hover:underline cursor-pointer">
-                        {transaksi.gudang}
-                      </span>
-                    </Link>
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-base">
-                    {transaksi.operator}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-base">
-                    <span
-                      className={`text-base px-2 py-1 rounded-full font-medium ${
-                        transaksi.jenis === "Pembelian"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {transaksi.jenis}
-                    </span>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={14} className="text-center py-10">
+                    Loading...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : dataTransaksi.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={14} className="text-center py-10">
+                    Tidak ada data transaksi.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                dataTransaksi.map((trx) => (
+                  <TableRow
+                    key={trx.id}
+                    className="group hover:bg-gray-50 relative"
+                  >
+                    <TableCell>
+                      <Checkbox />
+                    </TableCell>
+                    <TableCell>
+                      <button
+                        onClick={() =>
+                          setExpandedRowId(expandedRowId === trx.id ? null : trx.id)
+                        }
+                        className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-gray-800"
+                      >
+                        ⮞
+                      </button>
+                    </TableCell>
+                    <TableCell>{new Date(trx.transactionDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{trx.itemCode}</TableCell>
+                    <TableCell>{trx.itemName}</TableCell>
+                    <TableCell>{trx.quantity}</TableCell>
+                    <TableCell>Rp {trx.unitPrice.toLocaleString()}</TableCell>
+                    <TableCell>Rp {trx.subtotal.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Link href={`/gudang/${trx.warehouse.toLowerCase().replace(/ /g, '-')}`}>
+                        <span className="text-blue-600 hover:underline">{trx.warehouse}</span>
+                      </Link>
+                    </TableCell>
+                    <TableCell>{trx.operator}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`text-sm px-2 py-1 rounded-full ${
+                          trx.isPurchase ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {trx.isPurchase ? 'Pembelian' : 'Penjualan'}
+                      </span>
+                    </TableCell>
+                    <TableCell>{trx.partner || '-'}</TableCell>
+                    <TableCell>{trx.paymentMethod}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          trx.paymentStatus ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-700'
+                        }`}
+                      >
+                        {trx.paymentStatus ? 'Lunas' : 'Belum Lunas'}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </ScrollArea>
       </Card>
+
+      {/* Side panel (expanded view) */}
+      {expandedRowId && (
+        <div className="fixed top-0 right-0 w-[40%] h-full bg-white shadow-lg z-50 p-6 overflow-y-auto border-l">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Detail Transaksi</h2>
+            <Button variant="ghost" onClick={() => setExpandedRowId(null)}>
+              ❌
+            </Button>
+          </div>
+          <p className="text-sm text-gray-500 mb-6">Form edit akan ditambahkan di sini.</p>
+        </div>
+      )}
     </div>
-  );  
+  );
 }
