@@ -1,21 +1,24 @@
-import React from 'react'
-import { Plus } from "lucide-react";
+// modal-add.jsx
+import { FormAdd } from './form-add';
 import CustomModal from '@/app/components/modal';
 import { Button } from "@/app/components/ui/button";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 
-export const ModalAdd = () => {
+const ModalAdd = () => {
+  const [openDialog, setOpenDialog] = useState(false);
+
   return (
     <CustomModal
-  open={openDialog}
-  setOpen={setOpenDialog}
-  title={"Buat Invoice Baru"}
-  icon={<Plus />}
-  textButton={"Buat Invoice"}>
-<FormAdd/>
-  <Button className="w-full bg-cyan-950 hover:bg-cyan-900 mt-4">
-      Simpan
-    </Button>
-</CustomModal>
+      open={openDialog}
+      setOpen={setOpenDialog}
+      title={"Catat Transaksi Baru"}
+      icon={<Plus />}
+      textButton={"Catat Transaksi"}
+    >
+      <FormAdd onSuccess={() => setOpenDialog(false)} />
+    </CustomModal>
+  );
+};
 
-  )
-}
+export default ModalAdd;

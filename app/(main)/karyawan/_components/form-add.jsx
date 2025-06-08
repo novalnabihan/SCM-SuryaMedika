@@ -28,10 +28,14 @@ export const FormAdd = ({ onSuccess }) => {
   e.preventDefault();
   setLoading(true);
 
+  const token = localStorage.getItem('token');
+
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+       },
       body: JSON.stringify({
         username: newUser.username,
         email: newUser.email,
