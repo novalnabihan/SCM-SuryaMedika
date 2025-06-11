@@ -24,6 +24,11 @@ ChartJS.register(
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
+  const [summary, setSummary] = useState({
+    totalStok: 0,
+    totalModal: 0,
+    totalValue: 0,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -35,39 +40,28 @@ export default function DashboardPage() {
     } catch (err) {
       console.error('Failed to parse token:', err);
     }
+
+    const fetchSummary = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses/summary/global`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          setSummary(data);
+        } else {
+          console.error('Gagal ambil summary:', data.message);
+        }
+      } catch (err) {
+        console.error('Error fetching summary:', err);
+      }
+    };
+
+    fetchSummary();
   }, []);
-
-  const chartData = {
-    labels: ['Gudang A', 'Gudang B', 'Gudang C', 'Gudang D','Gudang E', 'Rumah Sakit Hermina', 'sads', 'asdasd', 'asdasd', 'asdasd' ],
-    datasets: [
-      {
-        label: 'Stok Gudang',
-        data: [200, 150, 210, 300, 210, 321, 100, 20, 200, 10],
-        backgroundColor: '#3B82F6', // biru
-        borderRadius: 6,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      title: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 50,
-        },
-      },
-    },
-  };
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
@@ -88,15 +82,15 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="p-5 bg-white rounded-xl shadow-sm border border-gray-100">
           <p className="text-gray-500 text-sm">Total Stok</p>
-          <p className="text-2xl font-bold text-gray-800 mt-1">560</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">{summary.totalStok}</p>
         </div>
         <div className="p-5 bg-white rounded-xl shadow-sm">
           <p className="text-gray-500 text-sm">Total Modal Gudang</p>
-          <p className="text-2xl font-bold text-gray-800 mt-1">Rp8,700,000</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">Rp {summary.totalModal.toLocaleString()}</p>
         </div>
         <div className="p-5 bg-white rounded-xl shadow-sm">
           <p className="text-gray-500 text-sm">Total Value Gudang</p>
-          <p className="text-2xl font-bold text-gray-800 mt-1">Rp11,200,000</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">Rp {summary.totalValue.toLocaleString()}</p>
         </div>
       </div>
 
