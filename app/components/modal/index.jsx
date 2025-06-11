@@ -9,11 +9,13 @@ import {
 import { Button } from "../ui/button";
 
 const CustomModal = ({
-    title, children, textButton, open, setOpen, icon
+    title, children, textButton, open, setOpen, icon, className
 }) => {
     return <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-            <Button className="flex items-center gap-2 bg-cyan-950 hover:bg-cyan-900 text-white px-5 py-6 rounded-lg min-w-[200px] text-base">
+            <Button 
+            variant="outline"
+            className={`flex items-center gap-2 px-5 py-6 rounded-lg min-w-[200px] text-base ${className}`}>
                 {icon}
                 {textButton}
             </Button>

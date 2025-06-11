@@ -12,42 +12,47 @@ import {
   SelectGroup,
 } from "@/app/components/ui/select";
 
-export const FormAdd = ({ onSuccess }) => {
-  const [form, setForm] = useState({ name: "", address: "", type: "" });
+export const FormAdd = ({ onSuccess, defaultData = {}, isEdit = false }) => {
+  const [form, setForm] = useState({
+    name: defaultData.name || '',
+    address: defaultData.address || '',
+    type: defaultData.type || '',
+  });
+
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-      const token = localStorage.getItem('token'); // ✅ tambahkan ini!
+    const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(form),
-        }
-      );
+      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses${isEdit ? '/' + defaultData.id : ''}`;
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(form),
+      });
 
       const data = await res.json();
       if (res.ok) {
-        onSuccess?.(); // Refresh
+        onSuccess?.();
       } else {
-        alert(data.message || "Gagal menambahkan gudang");
+        alert(data.message || `Gagal ${isEdit ? 'mengedit' : 'menambahkan'} gudang`);
       }
     } catch (err) {
-      console.error("Error tambah gudang:", err);
+      console.error(`Error ${isEdit ? 'edit' : 'tambah'} gudang:`, err);
       alert("Server error");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-white-600">

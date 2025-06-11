@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Warehouse, Trash2 } from "lucide-react";
+import { Warehouse, Trash2, Pencil } from "lucide-react";
 import ModalAdd from "./_components/modal-add";
+import ModalEdit from "./_components/modal-edit";
+import ModalDelete from "./_components/modal-delete";
 import {
   Dialog,
   DialogContent,
@@ -12,49 +14,43 @@ import {
 } from "@/app/components/ui/dialog";
 import { Button } from "@/app/components/ui/button";
 
-
 export default function GudangListPage() {
   const [gudangList, setGudangList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
   const [gudangToDelete, setGudangToDelete] = useState(null);
 
-  // console.log("🔐 Token saat submit:", token);
-  // Fetch data gudang dari backend
   const fetchGudang = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+      const data = await res.json();
+
+      if (Array.isArray(data)) {
+        setGudangList(data);
+      } else {
+        console.error("Respon bukan array:", data);
+        setGudangList([]);
       }
-    );
-    const data = await res.json();
-
-    if (Array.isArray(data)) {
-      setGudangList(data);
-    } else {
-      console.error('Respon bukan array:', data);
+    } catch (err) {
+      console.error("Gagal fetch gudang:", err);
       setGudangList([]);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Gagal fetch gudang:", err);
-    setGudangList([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
+  };
 
   useEffect(() => {
     fetchGudang();
   }, []);
 
-  // Hapus gudang (soft delete)
   const handleDelete = async (id) => {
     const konfirmasi = confirm("Yakin ingin menghapus gudang ini?");
     if (!konfirmasi) return;
@@ -62,13 +58,10 @@ export default function GudangListPage() {
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses/${id}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
 
       if (res.ok) {
-        // Refresh daftar gudang
         setGudangList((prev) => prev.filter((g) => g.id !== id));
       } else {
         alert("Gagal menghapus gudang.");
@@ -112,76 +105,28 @@ export default function GudangListPage() {
                       {gudang.type}
                     </span>
                   </p>
-                  {/* Placeholder stok, akan diisi nanti */}
                   <p className="text-black text-base mt-1">
-                    Stok barang: <span className="font-semibold">-</span>
+                    Stok barang:{" "}
+                    <span className="font-semibold">
+                      {gudang.totalStock}
+                    </span>
                   </p>
                 </div>
               </Link>
 
-              <div className="mt-auto flex justify-end">
-                <button
-                  onClick={() => {
-                    setGudangToDelete(gudang);
-                    setConfirmDeleteDialog(true);
-                  }}
-                  className="flex items-center gap-2 text-base text-red-500 border border-red-500 hover:bg-red-100 px-2 py-2 rounded-lg"
-                >
-                  <Trash2 size={16} />
-                  Hapus Gudang
-                </button>
+              {/* Tombol edit & hapus */}
+              <div className="mt-auto flex justify-end gap-2 pt-4">
+                <ModalEdit
+                  warehouse={gudang}
+                  refresh={fetchGudang}
+                  buttonClass="flex items-center gap-2 text-base text-cyan-700 border border-cyan-700 hover:bg-cyan-50 px-2 py-2 rounded-lg"
+                />
+                <ModalDelete warehouse={gudang} onDelete={fetchGudang} />
               </div>
             </div>
           ))}
         </div>
       )}
-      <Dialog open={confirmDeleteDialog} onOpenChange={setConfirmDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Konfirmasi Hapus Gudang</DialogTitle>
-          </DialogHeader>
-          <p>
-            Yakin ingin menghapus <strong>{gudangToDelete?.name}</strong>?
-            Tindakan ini tidak dapat dibatalkan.
-          </p>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setConfirmDeleteDialog(false)}
-            >
-              Batal
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={async () => {
-                try {
-                  const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses/${gudangToDelete.id}`,
-                    {
-                      method: "DELETE",
-                    }
-                  );
-
-                  if (res.ok) {
-                    setGudangList((prev) =>
-                      prev.filter((g) => g.id !== gudangToDelete.id)
-                    );
-                    setConfirmDeleteDialog(false);
-                    setGudangToDelete(null);
-                  } else {
-                    alert("Gagal menghapus gudang.");
-                  }
-                } catch (err) {
-                  console.error("Error hapus gudang:", err);
-                  alert("Server error");
-                }
-              }}
-            >
-              Hapus
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
