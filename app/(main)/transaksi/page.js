@@ -27,9 +27,12 @@ export default function InvoiceTable() {
   const fetchTransaksi = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const data = await res.json();
       if (Array.isArray(data)) setDataTransaksi(data);
       else setDataTransaksi([]);
@@ -47,14 +50,17 @@ export default function InvoiceTable() {
   const handleSave = async (updatePayload) => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatePayload),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatePayload),
+        }
+      );
       if (res.ok) {
         await fetchTransaksi();
         setExpandedRowId(null);
@@ -70,10 +76,13 @@ export default function InvoiceTable() {
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (res.ok) {
         await fetchTransaksi();
         setExpandedRowId(null);
@@ -91,7 +100,10 @@ export default function InvoiceTable() {
       <div className="flex items-center justify-between p-6 pb-4 sticky top-0 bg-slate-100 z-20 min-h-[80px]">
         <h1 className="text-2xl font-bold">Tabel Transaksi</h1>
         <div className="flex items-center gap-4">
-          <Input placeholder="Cari produk..." className="w-64 h-12 px-4 text-gray-600 border rounded-md" />
+          <Input
+            placeholder="Cari produk..."
+            className="w-64 h-12 px-4 text-gray-600 border rounded-md"
+          />
           <ModalAdd />
         </div>
       </div>
@@ -123,16 +135,25 @@ export default function InvoiceTable() {
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={14} className="text-center py-10">Loading...</TableCell>
+                      <TableCell colSpan={14} className="text-center py-10">
+                        Loading...
+                      </TableCell>
                     </TableRow>
                   ) : dataTransaksi.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={14} className="text-center py-10">Tidak ada data transaksi.</TableCell>
+                      <TableCell colSpan={14} className="text-center py-10">
+                        Tidak ada data transaksi.
+                      </TableCell>
                     </TableRow>
                   ) : (
                     dataTransaksi.map((trx) => (
-                      <TableRow key={trx.id} className="group hover:bg-gray-50 relative">
-                        <TableCell><Checkbox /></TableCell>
+                      <TableRow
+                        key={trx.id}
+                        className="group hover:bg-gray-50 relative"
+                      >
+                        <TableCell>
+                          <Checkbox />
+                        </TableCell>
                         <TableCell>
                           <button
                             onClick={() => {
@@ -145,28 +166,54 @@ export default function InvoiceTable() {
                               }
                             }}
                             className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-gray-800"
-                          >⮞</button>
+                          >
+                            ⮞
+                          </button>
                         </TableCell>
                         <TableCell>{trx.invoiceCode}</TableCell>
-                        <TableCell>{new Date(trx.transactionDate).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          {new Date(trx.transactionDate).toLocaleDateString()}
+                        </TableCell>
                         <TableCell>{trx.itemId}</TableCell>
                         <TableCell>{trx.itemName}</TableCell>
                         <TableCell>{trx.quantity}</TableCell>
-                        <TableCell>Rp {trx.unitPrice.toLocaleString()}</TableCell>
-                        <TableCell>Rp {trx.subtotal.toLocaleString()}</TableCell>
                         <TableCell>
-                          <Link href={`/gudang/${trx.warehouse.toLowerCase().replace(/ /g, "-")}`}>
-                            <span className="text-blue-600 hover:underline">{trx.warehouse}</span>
+                          Rp {trx.unitPrice.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          Rp {trx.subtotal.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <Link href={`/gudang/${trx.warehouseId}`}>
+                            <span className="text-blue-600 hover:underline">
+                              {trx.warehouse}
+                            </span>
                           </Link>
                         </TableCell>
                         <TableCell>{trx.operator}</TableCell>
                         <TableCell>
-                          <span className={`text-sm px-2 py-1 rounded-full ${trx.isPurchase ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{trx.isPurchase ? "Pembelian" : "Penjualan"}</span>
+                          <span
+                            className={`text-sm px-2 py-1 rounded-full ${
+                              trx.isPurchase
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {trx.isPurchase ? "Pembelian" : "Penjualan"}
+                          </span>
                         </TableCell>
                         <TableCell>{trx.partner}</TableCell>
                         <TableCell>{trx.paymentMethod}</TableCell>
                         <TableCell>
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${trx.paymentStatus ? "bg-emerald-100 text-emerald-800" : "bg-yellow-100 text-yellow-700"}`}>{trx.paymentStatus ? "Lunas" : "Belum Lunas"}</span>
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              trx.paymentStatus
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {trx.paymentStatus ? "Lunas" : "Belum Lunas"}
+                          </span>
                         </TableCell>
                       </TableRow>
                     ))

@@ -85,23 +85,25 @@ export default function ModalAddGudangTransaksi({ warehouseId, onSuccess }) {
         Buat Invoice Baru
       </Button>
 
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="!max-w-3xl max-h-[90vh] overflow-y-auto">
+
         <DialogHeader>
           <DialogTitle>Catat Transaksi Gudang</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
               <Label>Tanggal</Label>
               <Input
                 type="date"
                 value={formData.transactionDate}
                 onChange={(e) => handleChange('transactionDate', e.target.value)}
+                className="h-11"
               />
             </div>
-            <div>
-              <Label>Jenis Transaksi</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">Jenis Transaksi</Label>
               <select
                 className="w-full mt-2 border border-gray-300 rounded-md px-3 py-2"
                 value={formData.isPurchase}
@@ -111,23 +113,26 @@ export default function ModalAddGudangTransaksi({ warehouseId, onSuccess }) {
                 <option value="false">Penjualan</option>
               </select>
             </div>
-            <div>
-              <Label>Partner</Label>
+
+            <div className='space-y-2'>
+              <Label className="text-sm font-medium text-gray-700">Partner</Label>
               <Input
                 value={formData.partner}
                 onChange={(e) => handleChange('partner', e.target.value)}
                 placeholder={formData.isPurchase ? 'Nama Vendor' : 'Nama Pembeli'}
+                className='h-11'
               />
             </div>
-            <div>
-              <Label>Metode Pembayaran</Label>
+            <div className='space-y-2'>
+              <Label className="text-sm font-medium text-gray-700">Metode Pembayaran</Label>
               <Input
                 value={formData.paymentMethod}
                 onChange={(e) => handleChange('paymentMethod', e.target.value)}
+                className='h-11'
               />
             </div>
-            <div>
-              <Label>Status Pembayaran</Label>
+            <div className='space-y-2'>
+              <Label className="text-sm font-medium text-gray-700">Status Pembayaran</Label>
               <select
                 className="w-full mt-2 border border-gray-300 rounded-md px-3 py-2"
                 value={formData.paymentStatus}
@@ -152,7 +157,7 @@ export default function ModalAddGudangTransaksi({ warehouseId, onSuccess }) {
                 />
               ))}
             </div>
-            <Button type="button" onClick={handleAddItem} className="mt-3">
+            <Button type="button" onClick={handleAddItem} className="mt-6 w-full bg-slate-100 text-slate-700 hover:bg-slate-200 border-2 border-dashed border-slate-300 rounded-lg font-medium py-3">
               + Tambah Item
             </Button>
           </div>

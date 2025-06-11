@@ -42,13 +42,19 @@ const ModalAdd = ({ onItemAdded }) => {
       title={"Tambah Item Baru"}
       icon={<Plus />}
       textButton={"Tambah Item"}
-      className="bg-cyan-950 text-white"
+      triggerClassName="bg-cyan-950 hover:bg-cyan-900 text-white px-5 py-6 rounded-lg min-w-[200px] text-base"
     >
       <FormAdd onSubmit={handleSubmit} />
       <div>
         <Button
           className="w-full bg-cyan-950 hover:bg-cyan-900 mt-4"
-          onClick={() => document.querySelector("form").dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }))}
+          onClick={() =>
+            document
+              .querySelector("form")
+              .dispatchEvent(
+                new Event("submit", { cancelable: true, bubbles: true })
+              )
+          }
           disabled={loading}
         >
           {loading ? "Menyimpan..." : "Simpan"}

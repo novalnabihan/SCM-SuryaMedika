@@ -44,13 +44,14 @@ export const ItemRow = ({ item, onChange, onRemove, isPurchase }) => {
   };
 
   return (
-    <div className="border p-4 rounded-lg space-y-3 bg-gray-50 relative">
+    <div className="relative">
       <div>
         <Label>Barang</Label>
         <Input
           placeholder="Cari nama barang..."
           value={query || item.itemName || ''}
           onChange={(e) => setQuery(e.target.value)}
+          className="mt-3 mb-6"
         />
         {query && (
           <div className="border absolute z-10 bg-white w-full shadow-lg mt-1 max-h-40 overflow-y-auto">
@@ -77,6 +78,7 @@ export const ItemRow = ({ item, onChange, onRemove, isPurchase }) => {
           min="1"
           value={item.quantity}
           onChange={(e) => onChange('quantity', parseInt(e.target.value))}
+          className="mt-3 mb-6"
         />
       </div>
 
@@ -84,10 +86,10 @@ export const ItemRow = ({ item, onChange, onRemove, isPurchase }) => {
         <Label>Harga Satuan</Label>
         <Input
           type="number"
-          step="0.01"
           value={item.unitPrice}
           onChange={(e) => onChange('unitPrice', parseFloat(e.target.value))}
           disabled={!isPurchase} // hanya bisa diinput saat pembelian
+          className="mt-3 mb-6"
         />
       </div>
 

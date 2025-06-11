@@ -1,35 +1,122 @@
 import { useState } from "react";
 import {
-    Dialog,
-    DialogTrigger,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/app/components/ui/dialog";
 import { Button } from "../ui/button";
 
 const CustomModal = ({
-    title, children, textButton, open, setOpen, icon, className
+  // Modal Control
+  open,
+  setOpen,
+  
+  // Trigger Props
+  trigger, // Custom trigger component
+  triggerAsChild = false,
+  
+  // Built-in Trigger (jika tidak ada custom trigger)
+  textButton,
+  icon,
+  triggerVariant = "outline",
+  triggerSize = "default",
+  triggerClassName = "",
+  
+  // Modal Content
+  title,
+  showHeader = true,
+  children,
+  
+  // Modal Styling
+  contentClassName = "",
+  headerClassName = "",
+  titleClassName = "",
+  
+  // Modal Size Presets
+  size = "default", // xs, sm, default, lg, xl, full
+  
+  // Advanced Props
+  closeOnClickOutside = true,
+  showCloseButton = true,
+  ...props
 }) => {
-    return <Dialog open={open} onOpenChange={setOpen}>
+  // Size presets
+  const sizeClasses = {
+    xs: "max-w-sm",
+    sm: "max-w-md", 
+    default: "max-w-lg",
+    lg: "max-w-2xl",
+    xl: "max-w-4xl",
+    "2xl": "max-w-6xl",
+    full: "max-w-[95vw]"
+  };
+
+  // Default content class
+  const defaultContentClass = `w-full ${sizeClasses[size]} max-h-[90vh] overflow-y-auto`;
+
+  // Render custom trigger or default trigger
+  const renderTrigger = () => {
+    if (trigger) {
+      return triggerAsChild ? (
         <DialogTrigger asChild>
-            <Button 
-            variant="outline"
-            className={`flex items-center gap-2 px-5 py-6 rounded-lg min-w-[200px] text-base ${className}`}>
-                {icon}
-                {textButton}
-            </Button>
+          {trigger}
         </DialogTrigger>
-        <DialogContent className="max-w-4xl p-5 bg-white rounded-xl shadow-lg">
-            <DialogHeader>
-                <DialogTitle className="text-xl font-semibold">
-                    {title}
-                </DialogTitle>
-            </DialogHeader>
-            {children}
-        </DialogContent>
+      ) : (
+        <DialogTrigger>
+          {trigger}
+        </DialogTrigger>
+      );
+    }
+
+    // Default trigger
+    if (textButton) {
+      return (
+        <DialogTrigger asChild>
+          <Button
+            variant={triggerVariant}
+            size={triggerSize}
+            className={`flex items-center gap-2 ${triggerClassName}`}
+          >
+            {icon}
+            {textButton}
+          </Button>
+        </DialogTrigger>
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <Dialog 
+      open={open} 
+      onOpenChange={setOpen}
+      {...props}
+    >
+      {renderTrigger()}
+      
+      <DialogContent 
+        className={`${defaultContentClass} ${contentClassName}`}
+        onPointerDownOutside={closeOnClickOutside ? undefined : (e) => e.preventDefault()}
+      >
+        {showHeader && (title || showCloseButton) && (
+          <DialogHeader className={headerClassName}>
+            {title && (
+              <DialogTitle className={`text-xl font-semibold ${titleClassName}`}>
+                {title}
+              </DialogTitle>
+            )}
+          </DialogHeader>
+        )}
+        
+        <div className={showHeader ? "mt-4" : ""}>
+          {children}
+        </div>
+      </DialogContent>
     </Dialog>
-}
+  );
+};
 
-
-export default CustomModal
+export default CustomModal;
