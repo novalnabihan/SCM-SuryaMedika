@@ -15,7 +15,8 @@ const ModalAdd = ({ refresh }) => {
       title={'Tambah Karyawan Baru'}
       icon={<Plus />}
       textButton={'Tambah Karyawan'}
-      className="bg-cyan-950 text-white"
+      
+      triggerClassName="bg-cyan-950 hover:bg-cyan-900 text-white px-5 py-6 rounded-lg min-w-[200px] text-base"
     >
       <FormAdd
         onSuccess={() => {
