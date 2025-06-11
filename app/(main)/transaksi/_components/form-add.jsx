@@ -69,98 +69,112 @@ export const FormAdd = ({ onSuccess }) => {
     }
   }
 
-  return (
-    <form className="space-y-6 p-6 bg-white rounded-2xl shadow-md border border-gray-100" onSubmit={handleSubmit}>
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        Form Transaksi Baru
-      </h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label>Tanggal Transaksi</Label>
-          <Input
-            type="date"
-            value={transactionDate}
-            onChange={(e) => setTransactionDate(e.target.value)}
-          />
-        </div>
-
-        <WarehouseSelector value={warehouseId} onChange={setWarehouseId} />
-
-        <div>
-          <Label>{isPurchase ? 'Vendor' : 'Pembeli'} (Partner)</Label>
-          <Input
-            value={partner}
-            onChange={(e) => setPartner(e.target.value)}
-            placeholder={isPurchase ? 'Nama Vendor' : 'Nama Pembeli'}
-          />
-        </div>
-
-        <div>
-          <Label>Metode Pembayaran</Label>
-          <Input
-            value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-            placeholder="Contoh: Transfer, Cash"
-          />
-        </div>
-
-        <div>
-          <Label>Status Pembayaran</Label>
-          <select
-            className="w-full mt-2 border border-gray-300 rounded-md px-3 py-2"
-            value={paymentStatus}
-            onChange={(e) => setPaymentStatus(e.target.value === 'true')}
-          >
-            <option value="true">Lunas</option>
-            <option value="false">Belum Lunas</option>
-          </select>
-        </div>
-
-        <div>
-          <Label>Jenis Transaksi</Label>
-          <select
-            className="w-full mt-2 border border-gray-300 rounded-md px-3 py-2"
-            value={isPurchase}
-            onChange={(e) => setIsPurchase(e.target.value === 'true')}
-          >
-            <option value="true">Pembelian</option>
-            <option value="false">Penjualan</option>
-          </select>
-        </div>
+ // Hapus wrapper modal dan gunakan hanya form content
+return (
+  <form className="space-y-8" onSubmit={handleSubmit}>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="space-y-2">
+        <Label className="text-sm font-medium text-gray-700">Tanggal Transaksi</Label>
+        <Input
+          type="date"
+          value={transactionDate}
+          onChange={(e) => setTransactionDate(e.target.value)}
+          className="h-11"
+        />
       </div>
 
-      <div className="mt-6">
-        <h3 className="font-medium text-gray-700 mb-2">Daftar Item</h3>
-        <div className="space-y-4">
-          {items.map((item, index) => (
+      <div className="space-y-2">
+        <WarehouseSelector value={warehouseId} onChange={setWarehouseId} 
+        className = "h-11"/>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-sm font-medium text-gray-700">
+          {isPurchase ? 'Vendor' : 'Pembeli'} (Partner)
+        </Label>
+        <Input
+          value={partner}
+          onChange={(e) => setPartner(e.target.value)}
+          placeholder={isPurchase ? 'Nama Vendor' : 'Nama Pembeli'}
+          className="h-11"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-sm font-medium text-gray-700">Metode Pembayaran</Label>
+        <Input
+          value={paymentMethod}
+          onChange={(e) => setPaymentMethod(e.target.value)}
+          placeholder="Contoh: Transfer, Cash"
+          className="h-11"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-sm font-medium text-gray-700">Status Pembayaran</Label>
+        <select
+          className="w-full h-11 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+          value={paymentStatus}
+          onChange={(e) => setPaymentStatus(e.target.value === 'true')}
+        >
+          <option value="true">Lunas</option>
+          <option value="false">Belum Lunas</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-sm font-medium text-gray-700">Jenis Transaksi</Label>
+        <select
+          className="w-full h-11 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+          value={isPurchase}
+          onChange={(e) => setIsPurchase(e.target.value === 'true')}
+        >
+          <option value="true">Pembelian</option>
+          <option value="false">Penjualan</option>
+        </select>
+      </div>
+    </div>
+
+    <div className="border-t border-gray-200 pt-8">
+      <h3 className="text-lg font-semibold text-gray-800 mb-6">Daftar Item</h3>
+      <div className="space-y-4">
+        {items.map((item, index) => (
+          <div key={index} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
             <ItemRow
-              key={index}
               item={item}
               onChange={(key, value) => handleItemChange(index, key, value)}
               onRemove={() => handleRemoveItem(index)}
               isPurchase={isPurchase}
             />
-          ))}
-        </div>
-        <Button
-          type="button"
-          onClick={handleAddItem}
-          className="mt-4 w-full bg-slate-100 text-slate-700 hover:bg-slate-200"
-        >
-          + Tambah Item
-        </Button>
+          </div>
+        ))}
       </div>
+      <Button
+        type="button"
+        onClick={handleAddItem}
+        className="mt-6 w-full bg-slate-100 text-slate-700 hover:bg-slate-200 border-2 border-dashed border-slate-300 rounded-lg font-medium py-3"
+      >
+        + Tambah Item
+      </Button>
+    </div>
 
-      <div className="flex justify-end pt-4">
-        <Button
-          type="submit"
-          className="bg-cyan-950 hover:bg-cyan-900 px-6"
-          disabled={loading}
-        >
-          {loading ? 'Menyimpan...' : 'Simpan Transaksi'}
-        </Button>
-      </div>
-    </form>
-  )
+    <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
+      <Button
+        type="button"
+        variant="outline"
+        className="px-8 py-3 h-12"
+        onClick={() => onSuccess?.()}
+      >
+        Batal
+      </Button>
+      <Button
+        type="submit"
+        className="bg-cyan-950 hover:bg-cyan-900 px-8 py-3 h-12"
+        disabled={loading}
+      >
+        {loading ? 'Menyimpan...' : 'Simpan Transaksi'}
+      </Button>
+    </div>
+  </form>
+)
 }
