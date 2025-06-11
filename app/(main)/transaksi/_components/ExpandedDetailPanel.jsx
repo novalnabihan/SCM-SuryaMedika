@@ -45,7 +45,7 @@ export default function ExpandedDetailPanel({ data, onSave, onDelete, onCancel }
             <Input
               value={item.value}
               disabled
-              className="bg-white text-cyan-950 cursor-not-allowed"
+              className="bg-cyan-950 text-white cursor-not-allowed opacity-100"
             />
           </div>
         ))}
@@ -61,7 +61,7 @@ export default function ExpandedDetailPanel({ data, onSave, onDelete, onCancel }
                 value={form.paymentMethod}
                 onChange={(e) => handleChange('paymentMethod', e.target.value)}
                 placeholder="Masukkan metode pembayaran"
-                className="bg-gray-800 text-white"
+                className="bg-white text-cyan-950 text-base font-semibold"
               />
             </div>
 
@@ -71,7 +71,7 @@ export default function ExpandedDetailPanel({ data, onSave, onDelete, onCancel }
               <select
                 value={form.paymentStatus ? 'lunas' : 'belum'}
                 onChange={(e) => handleChange('paymentStatus', e.target.value === 'lunas')}
-                className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none rounded-md"
+                className="w-full bg-white border border-gray-600 rounded px-3 py-2 text-cyan-950 text-base font-semibold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none rounded-md"
               >
                 <option value="lunas">Lunas</option>
                 <option value="belum">Belum Lunas</option>
@@ -93,7 +93,7 @@ export default function ExpandedDetailPanel({ data, onSave, onDelete, onCancel }
           <Button
             onClick={onCancel}
             variant="outline"
-            className="text-sm"
+            className="text-sm bg-cyan-950 border-white"
           >
             Batal
           </Button>
