@@ -1,17 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // ⬅ Tambahkan ini
+import { useRouter } from 'next/navigation';
 import ModalAdd from './_components/modal-add';
-import { Card } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import ConfirmModal from '@/app/components/modal/confirm-modal';
 
-const StokProduk = () => {
+export default function StokProduk() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteItemId, setDeleteItemId] = useState(null);
-  const router = useRouter(); // ⬅ Tambahkan ini
+  const router = useRouter();
 
   const fetchItems = async () => {
     try {
@@ -20,7 +19,6 @@ const StokProduk = () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/items`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
       const items = await res.json();
 
       const transformed = await Promise.all(
@@ -67,9 +65,7 @@ const StokProduk = () => {
       const token = localStorage.getItem('token');
       await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/items/${id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
       setProducts((prev) => prev.filter((item) => item.id !== id));
     } catch (err) {
@@ -81,7 +77,7 @@ const StokProduk = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-cyan-950">Stok Produk</h1>
+        <h1 className="text-2xl font-bold text-black">Stok Produk</h1>
         <ModalAdd onItemAdded={fetchItems} />
       </div>
 
@@ -90,27 +86,41 @@ const StokProduk = () => {
       ) : products.length === 0 ? (
         <p className="text-gray-500">Belum ada item.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((item) => (
-            <Card
+            <div
               key={item.id}
-              className="p-4 shadow relative hover:cursor-pointer hover:ring-2 hover:ring-cyan-600 transition"
-              onClick={() => router.push(`/stok/${item.id}`)} // ⬅ Arahkan ke halaman detail
+              className="bg-white border border-gray-200 hover:shadow-lg rounded-xl p-6 transition-shadow-lg flex flex-col"
             >
-              <h2 className="text-lg font-semibold text-cyan-950">{item.name}</h2>
-              <p className="text-gray-600">Harga Jual: Rp {item.currentPrice.toLocaleString()}</p>
-              <p className="text-gray-600">Total Stok: {item.stockTotal || '-'}</p>
-              <Button
-                variant="destructive"
-                className="absolute top-2 right-2 text-sm"
-                onClick={(e) => {
-                  e.stopPropagation(); // ⬅ Supaya klik tombol delete gak ikut trigger onClick Card
-                  setDeleteItemId(item.id);
-                }}
+              <div
+                onClick={() => router.push(`/stok/${item.id}`)}
+                className="cursor-pointer"
               >
-                Hapus
-              </Button>
-            </Card>
+                <h2 className="text-xl font-semibold text-cyan-950 mb-2">
+                  {item.name}
+                </h2>
+                <p className="text-gray-600 text-base">
+                  Harga Jual: Rp {item.currentPrice?.toLocaleString()}
+                </p>
+                <p className="text-gray-600 text-base mt-1">
+                  Total Stok:{" "}
+                  <span className="font-semibold">{item.stockTotal}</span>
+                </p>
+              </div>
+
+              <div className="mt-auto flex justify-end gap-2 pt-4">
+                <Button
+                  variant="destructive"
+                  className="border border-red-500 text-red-500 hover:bg-red-100 px-4 py-2 rounded-lg"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteItemId(item.id);
+                  }}
+                >
+                  Hapus
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -127,6 +137,4 @@ const StokProduk = () => {
       />
     </div>
   );
-};
-
-export default StokProduk;
+}

@@ -14,7 +14,7 @@ const ModalAdd = () => {
       setOpen={setOpenDialog}
       title={"Catat Transaksi Baru"}
       icon={<Plus />}
-      textButton={"Catat Transaksi"}
+      textButton={"Catat Transaksiiiiii"}
     >
       <FormAdd onSuccess={() => setOpenDialog(false)} />
     </CustomModal>

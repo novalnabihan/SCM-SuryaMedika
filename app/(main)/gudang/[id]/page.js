@@ -15,9 +15,11 @@ import {
   TableRow,
 } from "@/app/components/ui/table";
 import ModalAddGudangTransaksi from "../_components/modal-add-gudangtransaksi";
+import { useRouter } from "next/navigation";
 
 export default function GudangDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
   const [gudang, setGudang] = useState(null);
   const [transaksi, setTransaksi] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -69,9 +71,16 @@ export default function GudangDetailPage() {
   if (!gudang) return <p>Gudang tidak ditemukan.</p>;
 
   return (
-    <div className="p-6 bg-slate-100 min-h-screen">
+    <div className="p-7 bg-slate-100 min-h-screen">
       {/* Header */}
       <div className="mb-6">
+        <button
+          onClick={() => router.back()}
+          className="text-sm text-cyan-700 border border-cyan-700 hover:bg-cyan-50 px-4 py-2 rounded-lg mb-4"
+        >
+          ← Kembali
+        </button>
+
         <h1 className="text-3xl font-bold flex items-center gap-3 text-gray-900">
           <Warehouse className="text-cyan-800" /> {gudang.name}
         </h1>
@@ -116,7 +125,7 @@ export default function GudangDetailPage() {
 
       <Card className="p-4 shadow-md rounded-xl">
         <ScrollArea>
-          <Table className="table-auto">
+          <Table className="table-auto text-base">
             <TableHeader>
               <TableRow className="bg-slate-200">
                 <TableHead>Tanggal</TableHead>
@@ -160,9 +169,7 @@ export default function GudangDetailPage() {
                   <TableCell>
                     <span
                       className={`text-sm font-medium ${
-                        trx.paymentStatus
-                          ? "text-green-600"
-                          : "text-yellow-600"
+                        trx.paymentStatus ? "text-green-600" : "text-yellow-600"
                       }`}
                     >
                       {trx.paymentStatus ? "Lunas" : "Belum Lunas"}
