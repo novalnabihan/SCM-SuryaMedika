@@ -3,13 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ModalAdd from './_components/modal-add';
+import ModalDelete from './_components/modal-delete';
 import { Button } from '@/app/components/ui/button';
-import ConfirmModal from '@/app/components/modal/confirm-modal';
 
 export default function StokProduk() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [deleteItemId, setDeleteItemId] = useState(null);
   const router = useRouter();
 
   const fetchItems = async () => {
@@ -60,20 +59,6 @@ export default function StokProduk() {
     fetchItems();
   }, []);
 
-  const handleDelete = async (id) => {
-    try {
-      const token = localStorage.getItem('token');
-      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/items/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setProducts((prev) => prev.filter((item) => item.id !== id));
-    } catch (err) {
-      console.error('Gagal hapus item:', err);
-      alert('Gagal menghapus item');
-    }
-  };
-
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -109,32 +94,15 @@ export default function StokProduk() {
               </div>
 
               <div className="mt-auto flex justify-end gap-2 pt-4">
-                <Button
-                  variant="destructive"
-                  className="border border-red-500 text-red-500 hover:bg-red-100 px-4 py-2 rounded-lg"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDeleteItemId(item.id);
-                  }}
-                >
-                  Hapus
-                </Button>
+                <ModalDelete
+                  item={item}
+                  onDelete={fetchItems}
+                />
               </div>
             </div>
           ))}
         </div>
       )}
-
-      <ConfirmModal
-        open={!!deleteItemId}
-        onConfirm={() => {
-          handleDelete(deleteItemId);
-          setDeleteItemId(null);
-        }}
-        onCancel={() => setDeleteItemId(null)}
-        title="Konfirmasi Hapus"
-        description="Serius mau delete item?"
-      />
     </div>
   );
 }
