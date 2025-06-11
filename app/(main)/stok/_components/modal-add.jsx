@@ -42,6 +42,7 @@ const ModalAdd = ({ onItemAdded }) => {
       title={"Tambah Item Baru"}
       icon={<Plus />}
       textButton={"Tambah Item"}
+      className="bg-cyan-950 text-white"
     >
       <FormAdd onSubmit={handleSubmit} />
       <div>

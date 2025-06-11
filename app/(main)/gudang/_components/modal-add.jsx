@@ -13,6 +13,7 @@ const ModalAdd = ({ refresh }) => {
         title={"Tambah Gudang Baru"} 
         icon={<Plus />} 
         textButton={'Tambah Gudang'}
+        className="bg-cyan-950 text-white"
         >
         <FormAdd
           onSuccess={() => {
