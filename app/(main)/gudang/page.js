@@ -19,20 +19,36 @@ export default function GudangListPage() {
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
   const [gudangToDelete, setGudangToDelete] = useState(null);
 
+  // console.log("🔐 Token saat submit:", token);
   // Fetch data gudang dari backend
   const fetchGudang = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses`
-      );
-      const data = await res.json();
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    const data = await res.json();
+
+    if (Array.isArray(data)) {
       setGudangList(data);
-    } catch (err) {
-      console.error("Gagal fetch gudang:", err);
-    } finally {
-      setLoading(false);
+    } else {
+      console.error('Respon bukan array:', data);
+      setGudangList([]);
     }
-  };
+  } catch (err) {
+    console.error("Gagal fetch gudang:", err);
+    setGudangList([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   useEffect(() => {
     fetchGudang();
