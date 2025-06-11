@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Warehouse, MapPin } from "lucide-react";
 import { Card } from "@/app/components/ui/card";
+import { Button } from "@/app/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import { Input } from "@/app/components/ui/input";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import {
@@ -74,12 +76,14 @@ export default function GudangDetailPage() {
     <div className="p-7 bg-slate-100 min-h-screen">
       {/* Header */}
       <div className="mb-6">
-        <button
-          onClick={() => router.back()}
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/gudang")}
           className="text-sm text-cyan-700 border border-cyan-700 hover:bg-cyan-50 px-4 py-2 rounded-lg mb-4"
         >
-          ← Kembali
-        </button>
+          <ArrowLeft className="w-4 h-4" />
+          Kembali
+        </Button>
 
         <h1 className="text-3xl font-bold flex items-center gap-3 text-gray-900">
           <Warehouse className="text-cyan-800" /> {gudang.name}
