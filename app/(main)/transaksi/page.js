@@ -115,7 +115,7 @@ export default function InvoiceTable() {
                       </button>
                     </TableCell>
                     <TableCell>{new Date(trx.transactionDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{trx.itemCode}</TableCell>
+                    <TableCell>{trx.itemId}</TableCell>
                     <TableCell>{trx.itemName}</TableCell>
                     <TableCell>{trx.quantity}</TableCell>
                     <TableCell>Rp {trx.unitPrice.toLocaleString()}</TableCell>
