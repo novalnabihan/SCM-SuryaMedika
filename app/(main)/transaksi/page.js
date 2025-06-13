@@ -11,24 +11,46 @@ import {
 import { Input } from "@/app/components/ui/input";
 import { Card } from "@/app/components/ui/card";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import ModalAdd from "./_components/modal-add";
 import Link from "next/link";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { Button } from "@/app/components/ui/button";
 import ExpandedDetailPanel from "./_components/ExpandedDetailPanel";
+import ModalExportTransaksi from './_components/modal-export-transaksi';
+import { Search, Loader2 } from "lucide-react";
 
 export default function InvoiceTable() {
   const [dataTransaksi, setDataTransaksi] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
+  const [isSearching, setIsSearching] = useState(false);
   const [expandedRowId, setExpandedRowId] = useState(null);
   const [expandedData, setExpandedData] = useState(null);
 
-  const fetchTransaksi = async () => {
+  const [filters, setFilters] = useState({
+    searchTerm: "", 
+  });
+
+  const debounceTimeoutRef = useRef(null);
+  const loadingIndicatorTimeoutRef = useRef(null);
+
+  const fetchTransaksi = useCallback(async () => {
+    if (dataTransaksi.length === 0) setLoading(true);
+    setIsSearching(true); 
+
+    if (loadingIndicatorTimeoutRef.current) {
+      clearTimeout(loadingIndicatorTimeoutRef.current);
+    }
+
     try {
       const token = localStorage.getItem("token");
+      const params = new URLSearchParams();
+      if (filters.searchTerm) {
+        params.append("q", filters.searchTerm);
+      }
+
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi?${params.toString()}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -38,14 +60,37 @@ export default function InvoiceTable() {
       else setDataTransaksi([]);
     } catch (error) {
       console.error("Gagal fetch transaksi:", error);
+      setDataTransaksi([]); 
     } finally {
-      setLoading(false);
+      setLoading(false); 
+      setIsSearching(false); 
     }
-  };
-
+  }, [filters, dataTransaksi.length]); 
   useEffect(() => {
-    fetchTransaksi();
-  }, []);
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    loadingIndicatorTimeoutRef.current = setTimeout(() => {
+      setIsSearching(true);
+    }, 100); 
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      fetchTransaksi(); 
+    }, 300); 
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      if (loadingIndicatorTimeoutRef.current) {
+        clearTimeout(loadingIndicatorTimeoutRef.current);
+      }
+    };
+  }, [filters, fetchTransaksi]); 
+  const handleSearchInputChange = (e) => {
+    setFilters((prevFilters) => ({ ...prevFilters, searchTerm: e.target.value }));
+  };
 
   const handleSave = async (updatePayload) => {
     const token = localStorage.getItem("token");
@@ -95,16 +140,28 @@ export default function InvoiceTable() {
     }
   };
 
+  if (loading && dataTransaksi.length === 0) return <p className="p-7">Memuat data transaksi...</p>;
+
   return (
     <div className="bg-slate-100 min-h-screen relative">
-      <div className="flex items-center justify-between p-6 pb-4 sticky top-0 bg-slate-100 z-20 min-h-[80px]">
-        <h1 className="text-2xl font-bold">Tabel Transaksi</h1>
-        <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 p-6 pb-4 sticky top-0 bg-slate-100 z-20 min-h-[80px]">
+        <h1 className="text-2xl font-bold mr-auto">Tabel Transaksi</h1>
+        <div className="relative">
           <Input
-            placeholder="Cari produk..."
-            className="w-64 h-12 px-4 text-gray-600 border rounded-md"
+            placeholder="Cari invoice, barang, gudang, operator, partner..."
+            className="w-120 h-12 px-4 text-gray-600 border rounded-md pl-10"
+            value={filters.searchTerm}
+            onChange={handleSearchInputChange}
           />
-          <ModalAdd />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          {isSearching && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 animate-spin" />
+          )}
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <ModalExportTransaksi transactions={dataTransaksi} /> {/* Pastikan prop transactions di sini disesuaikan jika dataTransaksi di-filter */}
+          <ModalAdd onSuccess={fetchTransaksi} /> {/* Tambahkan onSuccess untuk refresh data setelah tambah */}
         </div>
       </div>
 
@@ -133,19 +190,7 @@ export default function InvoiceTable() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={14} className="text-center py-10">
-                        Loading...
-                      </TableCell>
-                    </TableRow>
-                  ) : dataTransaksi.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={14} className="text-center py-10">
-                        Tidak ada data transaksi.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
+                  {dataTransaksi.length > 0 ? (
                     dataTransaksi.map((trx) => (
                       <TableRow
                         key={trx.id}
@@ -217,6 +262,21 @@ export default function InvoiceTable() {
                         </TableCell>
                       </TableRow>
                     ))
+                  ) : (
+                    // Tampilkan pesan jika tidak ada data atau sedang mencari
+                    <TableRow>
+                      <TableCell colSpan={14} className="text-center py-10">
+                        {/* Jika tidak ada data dan tidak sedang mencari */}
+                        {!isSearching && !loading && "Tidak ada data transaksi."}
+                        {/* Jika sedang mencari dan belum ada hasil */}
+                        {isSearching && (
+                            <>
+                                <Loader2 className="inline-block h-6 w-6 animate-spin mr-2" /> Mencari transaksi...
+                            </>
+                        )}
+                        {/* Initial loading (sudah ditangani di luar return) */}
+                      </TableCell>
+                    </TableRow>
                   )}
                 </TableBody>
               </Table>
