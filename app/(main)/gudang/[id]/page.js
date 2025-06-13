@@ -1,5 +1,3 @@
-// GudangDetailPage.js (revisi agar table-nya sama seperti transaksi, tanpa kolom Gudang)
-
 "use client";
 
 import {
@@ -13,29 +11,87 @@ import {
 import { Input } from "@/app/components/ui/input";
 import { Card } from "@/app/components/ui/card";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ExpandedDetailPanel from "../../transaksi/_components/ExpandedDetailPanel";
 import ModalAddGudangTransaksi from "../_components/modal-add-gudangtransaksi";
+import ModalExportFilter from "../_components/modal-export-filter";
 import { Button } from "@/app/components/ui/button";
-import { ArrowLeft, Warehouse, MapPin } from "lucide-react";
+import { ArrowLeft, Warehouse, MapPin, Search, Loader2 } from "lucide-react"; // Import Loader2
 
 export default function GudangDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const [gudang, setGudang] = useState(null);
   const [transaksi, setTransaksi] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // State untuk loading awal halaman
+  const [isSearching, setIsSearching] = useState(false); // State baru untuk indikator loading pencarian
   const [expandedRowId, setExpandedRowId] = useState(null);
   const [expandedData, setExpandedData] = useState(null);
   const [summary, setSummary] = useState({ totalStok: 0, totalModal: 0, totalValue: 0 });
 
-  const fetchData = async () => {
+  const [filters, setFilters] = useState({
+    searchTerm: "",
+    status: "",
+    partner: "",
+    operator: "",
+    paymentStatus: "",
+  });
+
+  const debounceTimeoutRef = useRef(null);
+  const loadingIndicatorTimeoutRef = useRef(null); // Ref untuk menunda tampilan indikator loading
+
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setFilters((prevFilters) => ({ ...prevFilters, searchTerm: value }));
+
+    // Hapus timeout debounce API call sebelumnya
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    // Hapus timeout indikator loading sebelumnya
+    if (loadingIndicatorTimeoutRef.current) {
+      clearTimeout(loadingIndicatorTimeoutRef.current);
+    }
+
+    // Tampilkan indikator loading setelah jeda singkat (misal 100ms)
+    // Ini menghindari flashing spinner untuk pencarian yang sangat cepat
+    loadingIndicatorTimeoutRef.current = setTimeout(() => {
+      setIsSearching(true);
+    }, 100);
+
+
+    // Set timeout untuk memicu fetching data (debounce utama)
+    debounceTimeoutRef.current = setTimeout(() => {
+      // fetchData akan dipanggil oleh useEffect di bawah karena filters berubah
+    }, 300);
+  };
+
+  const fetchData = useCallback(async () => {
+    // Hanya set loading awal true jika belum ada data transaksi
+    if (transaksi.length === 0) {
+      setLoading(true);
+    }
+    // Set isSearching true saat fetch dimulai (untuk indikator loading pencarian)
+    setIsSearching(true);
+
+    // Pastikan timeout indikator loading dibersihkan jika fetch dimulai lebih cepat dari timeout
+    if (loadingIndicatorTimeoutRef.current) {
+      clearTimeout(loadingIndicatorTimeoutRef.current);
+    }
+
     try {
       const token = localStorage.getItem("token");
+      const params = new URLSearchParams();
+
+      if (filters.searchTerm) {
+        params.append("q", filters.searchTerm);
+      }
+
       const [gudangRes, trxRes, summaryRes] = await Promise.all([
         fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses/${id}/transactions`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses/${id}/transactions?${params.toString()}`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses/${id}/summary`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
@@ -46,18 +102,30 @@ export default function GudangDetailPage() {
       ]);
 
       setGudang(gudangData);
-      setTransaksi(Array.isArray(trxData) ? trxData : []);
+      setTransaksi(Array.isArray(trxData) ? trxData : []); // PENTING: Jangan kosongkan transaksi di sini!
       setSummary(summaryData);
     } catch (err) {
       console.error("Error fetching data:", err);
+      setTransaksi([]); // Kosongkan transaksi hanya jika ada error
     } finally {
-      setLoading(false);
+      setLoading(false); // Selesai loading awal
+      setIsSearching(false); // Selesai pencarian
     }
-  };
+  }, [id, filters, transaksi.length]); // transaksi.length ditambahkan untuk mengelola state loading awal yang spesifik
 
   useEffect(() => {
     fetchData();
-  }, [id]);
+
+    // Cleanup: Bersihkan semua timeout saat komponen unmount atau effect berubah
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      if (loadingIndicatorTimeoutRef.current) {
+        clearTimeout(loadingIndicatorTimeoutRef.current);
+      }
+    };
+  }, [fetchData]); // Hanya re-run jika fetchData berubah (yang terjadi jika id atau filters berubah)
 
   const handleSave = async (updatePayload) => {
     const token = localStorage.getItem("token");
@@ -94,8 +162,9 @@ export default function GudangDetailPage() {
     }
   };
 
-  if (loading) return <p>Memuat data gudang...</p>;
-  if (!gudang) return <p>Gudang tidak ditemukan.</p>;
+  // Kondisi loading awal halaman (hanya jika data gudang belum dimuat)
+  if (loading && gudang === null) return <p className="p-7">Memuat data gudang...</p>;
+  if (!gudang) return <p className="p-7">Gudang tidak ditemukan.</p>;
 
   return (
     <div className="p-7 bg-slate-100 min-h-screen relative">
@@ -116,10 +185,26 @@ export default function GudangDetailPage() {
         <Card className="p-5"><p className="text-sm text-gray-500">Total Value</p><p className="text-2xl font-bold text-gray-800">Rp {summary.totalValue.toLocaleString()}</p></Card>
       </div>
 
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">Transaksi di Gudang Ini</h2>
-        <div className="flex gap-4">
-          <Input placeholder="Cari produk..." className="py-6 px-5 text-gray-600 border rounded-md" />
+      <div className="flex items-center gap-4 mb-4">
+        <h2 className="text-2xl font-bold mr-auto">
+          Transaksi di Gudang Ini
+        </h2>
+        <div className="relative">
+          <Input
+            type="text"
+            placeholder="Cari transaksi (invoice, barang, partner, operator)..."
+            className="py-6 px-5 border rounded-md w-120 pl-10"
+            value={filters.searchTerm}
+            onChange={handleSearchInputChange}
+          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          {isSearching && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 animate-spin" />
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <ModalExportFilter transactions={transaksi} />
           <ModalAddGudangTransaksi warehouseId={id} onSuccess={fetchData} />
         </div>
       </div>
@@ -147,11 +232,7 @@ export default function GudangDetailPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading ? (
-                  <TableRow><TableCell colSpan={14} className="text-center py-10">Loading...</TableCell></TableRow>
-                ) : transaksi.length === 0 ? (
-                  <TableRow><TableCell colSpan={14} className="text-center py-10">Tidak ada data transaksi.</TableCell></TableRow>
-                ) : (
+                {transaksi.length > 0 ? (
                   transaksi.map((trx) => (
                     <TableRow key={trx.id} className="group hover:bg-gray-50 relative">
                       <TableCell />
@@ -191,6 +272,18 @@ export default function GudangDetailPage() {
                       </TableCell>
                     </TableRow>
                   ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={14} className="text-center py-10">
+                      {!isSearching && !loading && "Tidak ada data transaksi."}
+                      {/* isSearching saat transaksi.length === 0, menunjukkan sedang mencari */}
+                      {isSearching && transaksi.length === 0 && (
+                          <>
+                              <Loader2 className="inline-block h-6 w-6 animate-spin mr-2" /> Mencari transaksi...
+                          </>
+                      )}
+                    </TableCell>
+                  </TableRow>
                 )}
               </TableBody>
             </Table>
