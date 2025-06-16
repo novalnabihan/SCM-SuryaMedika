@@ -9,6 +9,7 @@ import {
   Warehouse,
   Boxes,
   UserRound,
+  Receipt,
   LogOut,
   FileSpreadsheet
 } from 'lucide-react';
@@ -66,7 +67,7 @@ const Sidebar = () => {
           <SidebarLink href="/stok" icon={Boxes}>
             Stok
           </SidebarLink>
-          <SidebarLink href="/invoice" icon={FileSpreadsheet}>
+          <SidebarLink href="/invoice" icon={Receipt}>
             Invoice
           </SidebarLink>
           <SidebarLink as="button" onClick={() => setShowLogout(true)} icon={LogOut}>

@@ -16,6 +16,7 @@ import {
   Package,
 } from 'lucide-react';
 import ModalEdit from "./_components/modal-edit";
+import ModalExportStok from "./_components/modal-export-stok"; 
 
 const Page = () => {
   const { id } = useParams();
@@ -105,13 +106,15 @@ const Page = () => {
         </div>
       </div>
 
-      {/* Section 2: Distribusi Stok */}
+  
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-cyan-900">
             📦 Distribusi Stok di Gudang
           </h2>
-          <Button variant="outline">Export CSV</Button>
+          <div className="flex items-center gap-2">
+          <ModalExportStok item={item}/>
+        </div>
         </div>
 
         <div className="border rounded-md overflow-auto max-h-[500px]">

@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import ModalAdd from './_components/modal-add';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/app/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Search, Loader2 } from 'lucide-react';
+import ModalExportKaryawan from './_components/modal-export-karyawan';
 import {
   Table,
   TableBody,
@@ -34,12 +35,40 @@ export default function KaryawanPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [karyawanList, setKaryawanList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
   const [editDialog, setEditDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  // Ambil data dari token
+  const [filters, setFilters] = useState({
+    searchTerm: "",
+  });
+
+  const debounceTimeoutRef = useRef(null);
+  const loadingIndicatorTimeoutRef = useRef(null);
+
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setFilters((prevFilters) => ({ ...prevFilters, searchTerm: value }));
+
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    if (loadingIndicatorTimeoutRef.current) {
+      clearTimeout(loadingIndicatorTimeoutRef.current);
+    }
+
+    loadingIndicatorTimeoutRef.current = setTimeout(() => {
+      setIsSearching(true);
+    }, 100);
+
+    debounceTimeoutRef.current = setTimeout(() => {
+    }, 300);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -60,10 +89,23 @@ export default function KaryawanPage() {
     }
   }, [router]);
 
-  const fetchKaryawan = async () => {
+  const fetchKaryawan = useCallback(async () => {
+    if (karyawanList.length === 0) setLoading(true);
+    setIsSearching(true);
+
+    if (loadingIndicatorTimeoutRef.current) {
+      clearTimeout(loadingIndicatorTimeoutRef.current);
+    }
+
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users`, {
+      const params = new URLSearchParams();
+
+      if (filters.searchTerm) {
+        params.append("q", filters.searchTerm);
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -72,14 +114,27 @@ export default function KaryawanPage() {
       setKaryawanList(data.filter((u) => u.deletedAt === null));
     } catch (error) {
       console.error('Gagal mengambil data user:', error);
+      setKaryawanList([]);
+    } finally {
+      setLoading(false);
+      setIsSearching(false);
     }
-  };
+  }, [user, filters, karyawanList.length]);
 
   useEffect(() => {
     if (user?.role === 'manajer') {
       fetchKaryawan();
     }
-  }, [user]);
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      if (loadingIndicatorTimeoutRef.current) {
+        clearTimeout(loadingIndicatorTimeoutRef.current);
+      }
+    };
+  }, [user, fetchKaryawan]);
 
   const handleUpdate = async () => {
     try {
@@ -130,9 +185,7 @@ export default function KaryawanPage() {
       );
 
       if (res.status === 204) {
-        setKaryawanList((prev) =>
-          prev.filter((u) => u.id !== userToDelete.id)
-        );
+        await fetchKaryawan();
         setConfirmDeleteDialog(false);
         setUserToDelete(null);
       } else {
@@ -144,22 +197,38 @@ export default function KaryawanPage() {
     }
   };
 
-  if (!user) return <p className="p-6 text-gray-700">Loading...</p>;
+  if (loading && karyawanList.length === 0) return <p className="p-6 text-gray-700">Memuat data karyawan...</p>;
+  if (!user || user.role !== 'manajer') return <p className="p-6 text-red-700">Akses ditolak. Anda tidak memiliki izin.</p>;
+
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">Daftar Karyawan</h1>
-        <ModalAdd refresh={fetchKaryawan} />
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Input
+              placeholder="Cari karyawan (nama, email, telepon)..."
+              className="w-64 h-12 px-4 text-gray-600 border rounded-md pl-10"
+              value={filters.searchTerm}
+              onChange={handleSearchInputChange}
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            {isSearching && (
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 animate-spin" />
+            )}
+          </div>
+          <ModalExportKaryawan />
+          <ModalAdd refresh={fetchKaryawan} />
+        </div>
       </div>
-
       <Card className="p-4 shadow-md rounded-xl overflow-x-auto">
         <ScrollArea>
           <Table className="min-w-full bg-white">
             <TableHeader>
               <TableRow className="bg-slate-200">
                 <TableHead>Nama Lengkap</TableHead>
-                <TableHead>Nama</TableHead>
+                <TableHead>Nama Pengguna</TableHead>
                 <TableHead>Telepon</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
@@ -169,48 +238,60 @@ export default function KaryawanPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {karyawanList.map((k) => (
-                <TableRow key={k.id}>
-                  <TableCell>{k.fullName}</TableCell>
-                  <TableCell>{k.username}</TableCell>
-                  <TableCell>{k.phone}</TableCell>
-                  <TableCell>{k.email}</TableCell>
-                  <TableCell className="capitalize">{k.role}</TableCell>
-                  <TableCell>
-                    {new Date(k.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(k.updatedAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="flex gap-2">
-                    <Button
-                      size="icon"
-                      onClick={() => {
-                        setSelectedUser(k);
-                        setEditDialog(true);
-                      }}
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => {
-                        setUserToDelete(k);
-                        setConfirmDeleteDialog(true);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+              {karyawanList.length > 0 ? (
+                karyawanList.map((k) => (
+                  <TableRow key={k.id}>
+                    <TableCell>{k.fullName}</TableCell>
+                    <TableCell>{k.username}</TableCell>
+                    <TableCell>{k.phone}</TableCell>
+                    <TableCell>{k.email}</TableCell>
+                    <TableCell className="capitalize">{k.role}</TableCell>
+                    <TableCell>
+                      {new Date(k.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(k.updatedAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="flex gap-2">
+                      <Button
+                        size="icon"
+                        onClick={() => {
+                          setSelectedUser(k);
+                          setEditDialog(true);
+                        }}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => {
+                          setUserToDelete(k);
+                          setConfirmDeleteDialog(true);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-10">
+                    {!isSearching && !loading && "Tidak ada data karyawan."}
+                    {isSearching && (
+                        <>
+                            <Loader2 className="inline-block h-6 w-6 animate-spin mr-2" /> Mencari karyawan...
+                        </>
+                    )}
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </ScrollArea>
       </Card>
 
-      {/* Modal Edit */}
       <Dialog open={editDialog} onOpenChange={setEditDialog}>
         <DialogContent>
           <DialogHeader>
@@ -218,7 +299,7 @@ export default function KaryawanPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Nama</Label>
+              <Label>Nama Pengguna</Label>
               <Input
                 value={selectedUser?.username || ''}
                 onChange={(e) =>
@@ -257,7 +338,6 @@ export default function KaryawanPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Hapus */}
       <Dialog open={confirmDeleteDialog} onOpenChange={setConfirmDeleteDialog}>
         <DialogContent>
           <DialogHeader>
