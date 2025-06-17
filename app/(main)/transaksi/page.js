@@ -162,7 +162,7 @@ export default function InvoiceTable() {
         <Card className="p-0 shadow-md rounded-xl overflow-hidden">
           <ScrollArea className="w-full">
             <div className="min-w-[1200px]">
-              <Table className="table-auto text-base">
+              <Table className="table-auto text-base [&_th]:px-4 [&_th]:py-3 [&_td]:px-4 [&_td]:py-3">
                 <TableHeader className="bg-slate-200 sticky top-0 z-10">
                   <TableRow>
                     <TableHead />
