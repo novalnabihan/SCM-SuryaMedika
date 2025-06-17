@@ -17,21 +17,23 @@ import Link from "next/link";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { Button } from "@/app/components/ui/button";
 import ExpandedDetailPanel from "./_components/ExpandedDetailPanel";
-import ModalExportTransaksi from './_components/modal-export-transaksi';
+import ModalExportTransaksi from "./_components/modal-export-transaksi";
 import { Search, Loader2 } from "lucide-react";
+import { useAlertContext } from "@/app/components/alerts/AlertProvider";
 
 export default function InvoiceTable() {
   const [dataTransaksi, setDataTransaksi] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [expandedRowId, setExpandedRowId] = useState(null);
   const [expandedData, setExpandedData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [totalItems, setTotalItems] = useState(0);
+  const { showAlert } = useAlertContext();
 
   const [filters, setFilters] = useState({
-    searchTerm: "", 
+    searchTerm: "",
   });
 
   const debounceTimeoutRef = useRef(null);
@@ -41,7 +43,8 @@ export default function InvoiceTable() {
     if (dataTransaksi.length === 0) setLoading(true);
     setIsSearching(true);
 
-    if (loadingIndicatorTimeoutRef.current) clearTimeout(loadingIndicatorTimeoutRef.current);
+    if (loadingIndicatorTimeoutRef.current)
+      clearTimeout(loadingIndicatorTimeoutRef.current);
 
     try {
       const token = localStorage.getItem("token");
@@ -50,22 +53,37 @@ export default function InvoiceTable() {
       params.append("page", currentPage);
       params.append("limit", itemsPerPage);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_API_BASE_URL
+        }/transaksi?${params.toString()}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const data = await res.json();
       if (Array.isArray(data)) {
-        setDataTransaksi(data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));  // langsung set array
+        setDataTransaksi(
+          data.slice(
+            (currentPage - 1) * itemsPerPage,
+            currentPage * itemsPerPage
+          )
+        ); // langsung set array
         setTotalItems(data.length); // estimasi total
       } else {
         setDataTransaksi([]);
         setTotalItems(0);
       }
-
     } catch (error) {
       console.error("Gagal fetch transaksi:", error);
       setDataTransaksi([]);
       setTotalItems(0);
+
+      showAlert({
+        severity: "error",
+        message:
+          "Gagal memuat data transaksi. Silakan cek koneksi atau coba lagi.",
+      });
     } finally {
       setLoading(false);
       setIsSearching(false);
@@ -85,32 +103,49 @@ export default function InvoiceTable() {
 
     return () => {
       if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
-      if (loadingIndicatorTimeoutRef.current) clearTimeout(loadingIndicatorTimeoutRef.current);
+      if (loadingIndicatorTimeoutRef.current)
+        clearTimeout(loadingIndicatorTimeoutRef.current);
     };
   }, [filters, fetchTransaksi]);
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const handleSearchInputChange = (e) => {
-    setFilters((prevFilters) => ({ ...prevFilters, searchTerm: e.target.value }));
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      searchTerm: e.target.value,
+    }));
     setCurrentPage(1);
   };
 
   const handleSave = async (updatePayload) => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatePayload),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatePayload),
+        }
+      );
       if (res.ok) {
         await fetchTransaksi();
         setExpandedRowId(null);
         setExpandedData(null);
+        showAlert({
+          severity: "success",
+          message: "Transaksi berhasil diperbarui.",
+        });
+      } else {
+        const err = await res.json();
+        showAlert({
+          severity: "error",
+          message: err.message || "Gagal memperbarui transaksi.",
+        });
       }
     } catch (err) {
       console.error("Error saat update:", err);
@@ -120,14 +155,22 @@ export default function InvoiceTable() {
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (res.ok) {
         await fetchTransaksi();
         setExpandedRowId(null);
         setExpandedData(null);
+        showAlert({ severity: "success", message: "Transaksi berhasil dihapus." });
+
+      }else{
+        const err = await res.json();
+  showAlert({ severity: "error", message: err.message || "Gagal menghapus transaksi." });
       }
     } catch (err) {
       console.error("Error hapus transaksi:", err);
@@ -186,36 +229,83 @@ export default function InvoiceTable() {
                   {dataTransaksi.length > 0 ? (
                     dataTransaksi.map((trx) => (
                       <TableRow key={trx.id} className="group hover:bg-gray-50">
-                        <TableCell><Checkbox /></TableCell>
+                        <TableCell>
+                          <Checkbox />
+                        </TableCell>
                         <TableCell>
                           <button
                             onClick={() => {
-                              setExpandedRowId(expandedRowId === trx.id ? null : trx.id);
-                              setExpandedData(expandedRowId === trx.id ? null : trx);
+                              setExpandedRowId(
+                                expandedRowId === trx.id ? null : trx.id
+                              );
+                              setExpandedData(
+                                expandedRowId === trx.id ? null : trx
+                              );
                             }}
                             className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-gray-800"
-                          >⮞</button>
+                          >
+                            ⮞
+                          </button>
                         </TableCell>
                         <TableCell>{trx.invoiceCode}</TableCell>
-                        <TableCell>{new Date(trx.transactionDate).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          {new Date(trx.transactionDate).toLocaleDateString()}
+                        </TableCell>
                         <TableCell>{trx.itemId}</TableCell>
                         <TableCell>{trx.itemName}</TableCell>
                         <TableCell>{trx.quantity}</TableCell>
-                        <TableCell>Rp {trx.unitPrice.toLocaleString()}</TableCell>
-                        <TableCell>Rp {trx.subtotal.toLocaleString()}</TableCell>
-                        <TableCell><Link href={`/gudang/${trx.warehouseId}`}><span className="text-blue-600 hover:underline">{trx.warehouse}</span></Link></TableCell>
+                        <TableCell>
+                          Rp {trx.unitPrice.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          Rp {trx.subtotal.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <Link href={`/gudang/${trx.warehouseId}`}>
+                            <span className="text-blue-600 hover:underline">
+                              {trx.warehouse}
+                            </span>
+                          </Link>
+                        </TableCell>
                         <TableCell>{trx.operator}</TableCell>
-                        <TableCell><span className={`text-sm px-2 py-1 rounded-full ${trx.isPurchase ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{trx.isPurchase ? "Pembelian" : "Penjualan"}</span></TableCell>
+                        <TableCell>
+                          <span
+                            className={`text-sm px-2 py-1 rounded-full ${
+                              trx.isPurchase
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {trx.isPurchase ? "Pembelian" : "Penjualan"}
+                          </span>
+                        </TableCell>
                         <TableCell>{trx.partner}</TableCell>
                         <TableCell>{trx.paymentMethod}</TableCell>
-                        <TableCell><span className={`px-3 py-1 rounded-full text-sm font-medium ${trx.paymentStatus ? "bg-emerald-100 text-emerald-800" : "bg-yellow-100 text-yellow-700"}`}>{trx.paymentStatus ? "Lunas" : "Belum Lunas"}</span></TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              trx.paymentStatus
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {trx.paymentStatus ? "Lunas" : "Belum Lunas"}
+                          </span>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
                       <TableCell colSpan={14} className="text-center py-10">
-                        {!isSearching && !loading && "Tidak ada data transaksi."}
-                        {isSearching && <><Loader2 className="inline-block h-6 w-6 animate-spin mr-2" />Mencari transaksi...</>}
+                        {!isSearching &&
+                          !loading &&
+                          "Tidak ada data transaksi."}
+                        {isSearching && (
+                          <>
+                            <Loader2 className="inline-block h-6 w-6 animate-spin mr-2" />
+                            Mencari transaksi...
+                          </>
+                        )}
                       </TableCell>
                     </TableRow>
                   )}
@@ -228,9 +318,21 @@ export default function InvoiceTable() {
 
       {/* PAGINATION */}
       <div className="px-6 pb-6 flex justify-end gap-2">
-        <Button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Previous</Button>
-        <span className="px-3 py-2">Halaman {currentPage} dari {totalPages}</span>
-        <Button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next</Button>
+        <Button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(currentPage - 1)}
+        >
+          Previous
+        </Button>
+        <span className="px-3 py-2">
+          Halaman {currentPage} dari {totalPages}
+        </span>
+        <Button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage(currentPage + 1)}
+        >
+          Next
+        </Button>
       </div>
 
       {/* EXPANDED PANEL */}
