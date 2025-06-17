@@ -11,6 +11,7 @@ import {
   UserRound,
   Receipt,
   LogOut,
+  FileSpreadsheet
 } from 'lucide-react';
 
 const Sidebar = () => {
