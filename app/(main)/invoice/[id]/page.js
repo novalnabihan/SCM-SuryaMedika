@@ -72,10 +72,12 @@ export default function InvoiceDetailPage() {
                 : "-"}
             </p>
           </div>
+
           <div>
             <p className="text-sm text-gray-600">Metode Pembayaran</p>
             <p className="font-medium">{invoice.paymentMethod}</p>
           </div>
+
           <div>
             <p className="text-sm text-gray-600">Status Pembayaran</p>
             <p
@@ -86,9 +88,40 @@ export default function InvoiceDetailPage() {
               {invoice.paymentStatus ? "Lunas" : "Belum Lunas"}
             </p>
           </div>
+
+          <div>
+            <p className="text-sm text-gray-600">Status Transaksi</p>
+            <p
+              className={`font-semibold ${
+                invoice.items?.[0]?.isPurchase
+                  ? "text-green-700"
+                  : "text-red-700"
+              }`}
+            >
+              {invoice.items?.[0]?.isPurchase ? "Pembelian" : "Penjualan"}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-600">Total Transaksi</p>
+            <p className="font-semibold text-gray-900">
+              Rp{" "}
+              {invoice.items
+                ?.reduce((acc, trx) => acc + trx.subtotal, 0)
+                .toLocaleString("id-ID")}
+            </p>
+          </div>
+
+          {invoice.items?.[0]?.isPurchase && invoice.items?.[0]?.partner && (
+            <div className="md:col-span-2">
+              <p className="text-sm text-gray-600">Vendor</p>
+              <p className="font-medium">{invoice.items[0].partner}</p>
+            </div>
+          )}
+
           {invoice.buyer && (
             <div className="md:col-span-2">
-              <p className="text-sm text-gray-600">Partner</p>
+              <p className="text-sm text-gray-600">Pembeli</p>
               <p className="font-medium">{invoice.buyer}</p>
             </div>
           )}
