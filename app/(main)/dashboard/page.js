@@ -22,6 +22,18 @@ ChartJS.register(
   Legend
 );
 
+// Helper untuk format Rupiah
+const formatRupiah = (value) => {
+  const formatted = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(value || 0);
+
+  return formatted.replace('IDR', 'Rp');
+};
+
+
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
   const [summary, setSummary] = useState({
@@ -86,11 +98,11 @@ export default function DashboardPage() {
         </div>
         <div className="p-5 bg-white rounded-xl shadow-sm">
           <p className="text-gray-500 text-sm">Total Modal Gudang</p>
-          <p className="text-2xl font-bold text-gray-800 mt-1">Rp {summary.totalModal.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">{formatRupiah(summary.totalModal)}</p>
         </div>
         <div className="p-5 bg-white rounded-xl shadow-sm">
           <p className="text-gray-500 text-sm">Total Value Gudang</p>
-          <p className="text-2xl font-bold text-gray-800 mt-1">Rp {summary.totalValue.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">{formatRupiah(summary.totalValue)}</p>
         </div>
       </div>
 
