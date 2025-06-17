@@ -49,6 +49,22 @@ export default function KaryawanPage() {
   const debounceTimeoutRef = useRef(null);
   const loadingIndicatorTimeoutRef = useRef(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const totalPages = Math.ceil(karyawanList.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = karyawanList.slice(indexOfFirstItem, indexOfLastItem);
+
+  const goToNextPage = () => {
+  if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
   const handleSearchInputChange = (e) => {
     const value = e.target.value;
     setFilters((prevFilters) => ({ ...prevFilters, searchTerm: value }));
@@ -290,6 +306,29 @@ export default function KaryawanPage() {
             </TableBody>
           </Table>
         </ScrollArea>
+        <div className="flex justify-between items-center mt-4">
+          <p className="text-sm text-gray-600">
+            Halaman {currentPage} dari {totalPages}
+          </p>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToPrevPage}
+              disabled={currentPage === 1}
+            >
+              Sebelumnya
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+            >
+              Selanjutnya
+            </Button>
+          </div>
+        </div>
       </Card>
 
       <Dialog open={editDialog} onOpenChange={setEditDialog}>
