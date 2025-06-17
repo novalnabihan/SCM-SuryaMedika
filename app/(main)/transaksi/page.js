@@ -26,6 +26,9 @@ export default function InvoiceTable() {
   const [isSearching, setIsSearching] = useState(false);
   const [expandedRowId, setExpandedRowId] = useState(null);
   const [expandedData, setExpandedData] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [totalItems, setTotalItems] = useState(0);
 
   const [filters, setFilters] = useState({
     searchTerm: "", 
@@ -36,82 +39,78 @@ export default function InvoiceTable() {
 
   const fetchTransaksi = useCallback(async () => {
     if (dataTransaksi.length === 0) setLoading(true);
-    setIsSearching(true); 
+    setIsSearching(true);
 
-    if (loadingIndicatorTimeoutRef.current) {
-      clearTimeout(loadingIndicatorTimeoutRef.current);
-    }
+    if (loadingIndicatorTimeoutRef.current) clearTimeout(loadingIndicatorTimeoutRef.current);
 
     try {
       const token = localStorage.getItem("token");
       const params = new URLSearchParams();
-      if (filters.searchTerm) {
-        params.append("q", filters.searchTerm);
+      if (filters.searchTerm) params.append("q", filters.searchTerm);
+      params.append("page", currentPage);
+      params.append("limit", itemsPerPage);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setDataTransaksi(data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));  // langsung set array
+        setTotalItems(data.length); // estimasi total
+      } else {
+        setDataTransaksi([]);
+        setTotalItems(0);
       }
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi?${params.toString()}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await res.json();
-      if (Array.isArray(data)) setDataTransaksi(data);
-      else setDataTransaksi([]);
     } catch (error) {
       console.error("Gagal fetch transaksi:", error);
-      setDataTransaksi([]); 
+      setDataTransaksi([]);
+      setTotalItems(0);
     } finally {
-      setLoading(false); 
-      setIsSearching(false); 
+      setLoading(false);
+      setIsSearching(false);
     }
-  }, [filters, dataTransaksi.length]); 
+  }, [filters, currentPage]);
+
   useEffect(() => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
+    if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
 
     loadingIndicatorTimeoutRef.current = setTimeout(() => {
       setIsSearching(true);
-    }, 100); 
+    }, 100);
 
     debounceTimeoutRef.current = setTimeout(() => {
-      fetchTransaksi(); 
-    }, 300); 
+      fetchTransaksi();
+    }, 300);
 
     return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-      if (loadingIndicatorTimeoutRef.current) {
-        clearTimeout(loadingIndicatorTimeoutRef.current);
-      }
+      if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+      if (loadingIndicatorTimeoutRef.current) clearTimeout(loadingIndicatorTimeoutRef.current);
     };
-  }, [filters, fetchTransaksi]); 
+  }, [filters, fetchTransaksi]);
+
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
   const handleSearchInputChange = (e) => {
     setFilters((prevFilters) => ({ ...prevFilters, searchTerm: e.target.value }));
+    setCurrentPage(1);
   };
 
   const handleSave = async (updatePayload) => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(updatePayload),
-        }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatePayload),
+      });
       if (res.ok) {
         await fetchTransaksi();
         setExpandedRowId(null);
         setExpandedData(null);
-      } else {
-        console.error("Gagal update transaksi");
       }
     } catch (err) {
       console.error("Error saat update:", err);
@@ -121,34 +120,28 @@ export default function InvoiceTable() {
   const handleDelete = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/transaksi/${expandedRowId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (res.ok) {
         await fetchTransaksi();
         setExpandedRowId(null);
         setExpandedData(null);
-      } else {
-        console.error("Gagal hapus transaksi");
       }
     } catch (err) {
       console.error("Error hapus transaksi:", err);
     }
   };
 
-  if (loading && dataTransaksi.length === 0) return <p className="p-7">Memuat data transaksi...</p>;
-
   return (
     <div className="bg-slate-100 min-h-screen relative">
+      {/* HEADER & SEARCH */}
       <div className="flex items-center gap-4 p-6 pb-4 sticky top-0 bg-slate-100 z-20 min-h-[80px]">
         <h1 className="text-2xl font-bold mr-auto">Tabel Transaksi</h1>
         <div className="relative">
           <Input
-            placeholder="Cari invoice, barang, gudang, operator, partner..."
+            placeholder="Cari invoice, barang, gudang..."
             className="w-120 h-12 px-4 text-gray-600 border rounded-md pl-10"
             value={filters.searchTerm}
             onChange={handleSearchInputChange}
@@ -158,18 +151,18 @@ export default function InvoiceTable() {
             <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 animate-spin" />
           )}
         </div>
-        
         <div className="flex items-center gap-2">
-          <ModalExportTransaksi transactions={dataTransaksi} /> {/* Pastikan prop transactions di sini disesuaikan jika dataTransaksi di-filter */}
-          <ModalAdd onSuccess={fetchTransaksi} /> {/* Tambahkan onSuccess untuk refresh data setelah tambah */}
+          <ModalExportTransaksi transactions={dataTransaksi} />
+          <ModalAdd onSuccess={fetchTransaksi} />
         </div>
       </div>
 
+      {/* TABLE */}
       <div className="px-6 pb-6">
         <Card className="p-0 shadow-md rounded-xl overflow-hidden">
           <ScrollArea className="w-full">
             <div className="min-w-[1200px]">
-              <Table className="table-auto text-base [&_th]:px-4 [&_th]:py-3 [&_td]:px-4 [&_td]:py-3">
+              <Table className="table-auto text-base">
                 <TableHeader className="bg-slate-200 sticky top-0 z-10">
                   <TableRow>
                     <TableHead />
@@ -192,89 +185,37 @@ export default function InvoiceTable() {
                 <TableBody>
                   {dataTransaksi.length > 0 ? (
                     dataTransaksi.map((trx) => (
-                      <TableRow
-                        key={trx.id}
-                        className="group hover:bg-gray-50 relative"
-                      >
-                        <TableCell>
-                          <Checkbox />
-                        </TableCell>
+                      <TableRow key={trx.id} className="group hover:bg-gray-50">
+                        <TableCell><Checkbox /></TableCell>
                         <TableCell>
                           <button
                             onClick={() => {
-                              if (expandedRowId === trx.id) {
-                                setExpandedRowId(null);
-                                setExpandedData(null);
-                              } else {
-                                setExpandedRowId(trx.id);
-                                setExpandedData(trx);
-                              }
+                              setExpandedRowId(expandedRowId === trx.id ? null : trx.id);
+                              setExpandedData(expandedRowId === trx.id ? null : trx);
                             }}
                             className="opacity-0 group-hover:opacity-100 text-gray-500 hover:text-gray-800"
-                          >
-                            ⮞
-                          </button>
+                          >⮞</button>
                         </TableCell>
                         <TableCell>{trx.invoiceCode}</TableCell>
-                        <TableCell>
-                          {new Date(trx.transactionDate).toLocaleDateString()}
-                        </TableCell>
+                        <TableCell>{new Date(trx.transactionDate).toLocaleDateString()}</TableCell>
                         <TableCell>{trx.itemId}</TableCell>
                         <TableCell>{trx.itemName}</TableCell>
                         <TableCell>{trx.quantity}</TableCell>
-                        <TableCell>
-                          Rp {trx.unitPrice.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          Rp {trx.subtotal.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <Link href={`/gudang/${trx.warehouseId}`}>
-                            <span className="text-blue-600 hover:underline">
-                              {trx.warehouse}
-                            </span>
-                          </Link>
-                        </TableCell>
+                        <TableCell>Rp {trx.unitPrice.toLocaleString()}</TableCell>
+                        <TableCell>Rp {trx.subtotal.toLocaleString()}</TableCell>
+                        <TableCell><Link href={`/gudang/${trx.warehouseId}`}><span className="text-blue-600 hover:underline">{trx.warehouse}</span></Link></TableCell>
                         <TableCell>{trx.operator}</TableCell>
-                        <TableCell>
-                          <span
-                            className={`text-sm px-2 py-1 rounded-full ${
-                              trx.isPurchase
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {trx.isPurchase ? "Pembelian" : "Penjualan"}
-                          </span>
-                        </TableCell>
+                        <TableCell><span className={`text-sm px-2 py-1 rounded-full ${trx.isPurchase ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{trx.isPurchase ? "Pembelian" : "Penjualan"}</span></TableCell>
                         <TableCell>{trx.partner}</TableCell>
                         <TableCell>{trx.paymentMethod}</TableCell>
-                        <TableCell>
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-medium ${
-                              trx.paymentStatus
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-yellow-100 text-yellow-700"
-                            }`}
-                          >
-                            {trx.paymentStatus ? "Lunas" : "Belum Lunas"}
-                          </span>
-                        </TableCell>
+                        <TableCell><span className={`px-3 py-1 rounded-full text-sm font-medium ${trx.paymentStatus ? "bg-emerald-100 text-emerald-800" : "bg-yellow-100 text-yellow-700"}`}>{trx.paymentStatus ? "Lunas" : "Belum Lunas"}</span></TableCell>
                       </TableRow>
                     ))
                   ) : (
-                    // Tampilkan pesan jika tidak ada data atau sedang mencari
                     <TableRow>
                       <TableCell colSpan={14} className="text-center py-10">
-                        {/* Jika tidak ada data dan tidak sedang mencari */}
                         {!isSearching && !loading && "Tidak ada data transaksi."}
-                        {/* Jika sedang mencari dan belum ada hasil */}
-                        {isSearching && (
-                            <>
-                                <Loader2 className="inline-block h-6 w-6 animate-spin mr-2" /> Mencari transaksi...
-                            </>
-                        )}
-                        {/* Initial loading (sudah ditangani di luar return) */}
+                        {isSearching && <><Loader2 className="inline-block h-6 w-6 animate-spin mr-2" />Mencari transaksi...</>}
                       </TableCell>
                     </TableRow>
                   )}
@@ -285,6 +226,14 @@ export default function InvoiceTable() {
         </Card>
       </div>
 
+      {/* PAGINATION */}
+      <div className="px-6 pb-6 flex justify-end gap-2">
+        <Button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Previous</Button>
+        <span className="px-3 py-2">Halaman {currentPage} dari {totalPages}</span>
+        <Button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next</Button>
+      </div>
+
+      {/* EXPANDED PANEL */}
       {expandedRowId && expandedData && (
         <ExpandedDetailPanel
           data={expandedData}

@@ -68,6 +68,8 @@ export default function GudangDetailPage() {
     }, 300);
   };
 
+  const [pagination, setPagination] = useState({ page: 1, limit: 10 });
+  
   const fetchData = useCallback(async () => {
     // Hanya set loading awal true jika belum ada data transaksi
     if (transaksi.length === 0) {
@@ -88,6 +90,9 @@ export default function GudangDetailPage() {
       if (filters.searchTerm) {
         params.append("q", filters.searchTerm);
       }
+
+      params.append("page", pagination.page.toString());
+      params.append("limit", pagination.limit.toString());
 
       const [gudangRes, trxRes, summaryRes] = await Promise.all([
         fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/warehouses/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
@@ -125,7 +130,7 @@ export default function GudangDetailPage() {
         clearTimeout(loadingIndicatorTimeoutRef.current);
       }
     };
-  }, [fetchData]); // Hanya re-run jika fetchData berubah (yang terjadi jika id atau filters berubah)
+  }, [fetchData, pagination]); // Hanya re-run jika fetchData berubah (yang terjadi jika id atau filters berubah)
 
   const handleSave = async (updatePayload) => {
     const token = localStorage.getItem("token");
@@ -289,6 +294,27 @@ export default function GudangDetailPage() {
             </Table>
           </div>
         </ScrollArea>
+        <div className="flex justify-between items-center px-4 py-3">
+          <Button
+            variant="outline"
+            disabled={pagination.page === 1}
+            onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
+          >
+            Sebelumnya
+          </Button>
+
+          <span className="text-sm text-gray-600">
+            Halaman {pagination.page}
+          </span>
+
+          <Button
+            variant="outline"
+            disabled={transaksi.length < pagination.limit}
+            onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
+          >
+            Selanjutnya
+          </Button>
+        </div>
       </Card>
 
       {expandedRowId && expandedData && (
