@@ -13,8 +13,10 @@ import {
   DialogTitle,
 } from "@/app/components/ui/dialog";
 import { Button } from "@/app/components/ui/button";
+import useAuth from "@/hooks/useAuth";
 
 export default function GudangListPage() {
+  const { user, loading: authLoading } = useAuth();
   const [gudangList, setGudangList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
@@ -48,8 +50,10 @@ export default function GudangListPage() {
   };
 
   useEffect(() => {
-    fetchGudang();
-  }, []);
+    if (user) {
+      fetchGudang();
+    }
+  }, [user]);
 
   const handleDelete = async (id) => {
     const konfirmasi = confirm("Yakin ingin menghapus gudang ini?");
@@ -71,6 +75,10 @@ export default function GudangListPage() {
       alert("Server error");
     }
   };
+
+  if (authLoading) {
+    return <p className="p-6">Memeriksa sesi...</p>;
+  }
 
   return (
     <div className="p-6">
