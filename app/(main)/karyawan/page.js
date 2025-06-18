@@ -30,10 +30,12 @@ import {
 } from '@/app/components/ui/select';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
 import { Card } from '@/app/components/ui/card';
+import useAuth from '@/hooks/useAuth';
 
 export default function KaryawanPage() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const { user, loading: authLoading } = useAuth({ requiredRole: 'manajer' });
+  const [searchTerm, setSearchTerm] = useState("")
   const [karyawanList, setKaryawanList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
@@ -85,26 +87,7 @@ export default function KaryawanPage() {
     }, 300);
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      setUser(payload);
-
-      if (payload.role !== 'manajer') {
-        router.push('/dashboard');
-      }
-    } catch (err) {
-      console.error('Gagal parsing token:', err);
-      router.push('/login');
-    }
-  }, [router]);
-
+  
   const fetchKaryawan = useCallback(async () => {
     if (karyawanList.length === 0) setLoading(true);
     setIsSearching(true);
@@ -138,19 +121,14 @@ export default function KaryawanPage() {
   }, [user, filters, karyawanList.length]);
 
   useEffect(() => {
-    if (user?.role === 'manajer') {
-      fetchKaryawan();
-    }
-
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-      if (loadingIndicatorTimeoutRef.current) {
-        clearTimeout(loadingIndicatorTimeoutRef.current);
-      }
-    };
-  }, [user, fetchKaryawan]);
+        if (user) { 
+            if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+            debounceTimeoutRef.current = setTimeout(() => {
+                fetchKaryawan(searchTerm);
+            }, 500);
+        }
+        return () => { if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current) };
+    }, [user, searchTerm, fetchKaryawan]);
 
   const handleUpdate = async () => {
     try {
