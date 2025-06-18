@@ -55,16 +55,30 @@ export default function InvoicePage() {
                       {new Date(invoice.transactionDate).toLocaleDateString()}
                     </p>
                   </div>
-                  <div
-                    className="text-sm px-3 py-1 rounded-full font-semibold"
-                    style={{
-                      backgroundColor: invoice.paymentStatus
-                        ? "#DCFCE7"
-                        : "#FEF3C7",
-                      color: invoice.paymentStatus ? "#166534" : "#92400E",
-                    }}
-                  >
-                    {invoice.paymentStatus ? "Lunas" : "Belum Lunas"}
+
+                  <div className="text-right space-y-1">
+                    {/* Badge status pembayaran */}
+                    <div
+                      className="text-sm px-3 py-1 rounded-full font-semibold inline-block"
+                      style={{
+                        backgroundColor: invoice.paymentStatus
+                          ? "#DCFCE7"
+                          : "#FEF3C7",
+                        color: invoice.paymentStatus ? "#166534" : "#92400E",
+                      }}
+                    >
+                      {invoice.paymentStatus ? "Lunas" : "Belum Lunas"}
+                    </div>
+
+                    {/* Status transaksi */}
+                    <div
+                      className="text-sm font-medium"
+                      style={{
+                        color: invoice.isPurchase ? "#166534" : "#B91C1C", // hijau / merah gelap
+                      }}
+                    >
+                      {invoice.isPurchase ? "Pembelian" : "Penjualan"}
+                    </div>
                   </div>
                 </div>
 

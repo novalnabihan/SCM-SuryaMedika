@@ -1,4 +1,5 @@
-import './styles/globals.css';
+import "./styles/globals.css";
+import { AlertProvider } from "@/app/components/alerts/AlertProvider";
 
 export const metadata = {
   title: "Manajemen Gudang",
@@ -9,7 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="id">
       <body className="antialiased">
-        {children}
+        <AlertProvider>{children}</AlertProvider>
       </body>
     </html>
   );
