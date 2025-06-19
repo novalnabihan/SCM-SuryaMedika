@@ -110,7 +110,7 @@ const Page = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-cyan-900">
-            📦 Distribusi Stok di Gudang
+            Distribusi Stok di Gudang
           </h2>
           <div className="flex items-center gap-2">
           <ModalExportStok item={item}/>
@@ -154,7 +154,7 @@ const Page = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-cyan-900">
-            📈 Histori Perubahan Harga
+            Histori Perubahan Harga
           </h2>
           <div className="flex justify-end">
             <ModalEdit item={item} onSave={updateHarga} />
