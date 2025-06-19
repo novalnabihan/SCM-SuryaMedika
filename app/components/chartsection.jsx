@@ -145,7 +145,9 @@ export default function ChartSection() {
       }
     };
 
-    fetchData();
+    if (token) {
+      fetchData();
+    }
   }, []);
 
   const options = {
