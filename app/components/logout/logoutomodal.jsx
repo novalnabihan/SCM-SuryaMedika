@@ -22,7 +22,7 @@ const LogoutModal = ({ open, onCancel }) => {
           <DialogHeader>
             <DialogTitle>Konfirmasi Logout</DialogTitle>
           </DialogHeader>
-          <p>Serius mau logout?</p>
+          <p>Yakin mau logout?</p>
           <DialogFooter>
             <Button variant="outline" onClick={onCancel}>Batal</Button>
             <Button variant="destructive" onClick={handleConfirm}>Iya</Button>
